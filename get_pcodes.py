@@ -14,7 +14,9 @@ def get_pcodes(dataset, retriever):
         return None
 
     if len(resources) > 1:
-        resources = [r for r in resources if "gazetteer" in r["description"].lower()]
+        resources = [r for r in resources if "gazetteer" in r["description"].lower() or
+                     "taxonomy" in r["description"].lower() or
+                     bool(re.match(".*adm.*tabular.?data.*", r["name"], re.IGNORECASE))]
 
     if len(resources) == 0:
         logger.error(f"Could not find gazetteer in {dataset['name']}")
