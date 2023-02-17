@@ -58,7 +58,7 @@ def main(
 
                 global_pcodes = [g for g in global_pcodes if g[0] != country]
                 for pcode in pcodes:
-                    global_pcodes.append([country, pcode])
+                    global_pcodes.append([country, pcode[0], pcode[1]])
 
             write_list_to_csv("global_pcodes.csv", rows=global_pcodes)
 

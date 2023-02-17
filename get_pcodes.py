@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_pcodes(dataset, retriever):
-    pcodes = set()
+    pcodes = list()
 
     resources = [r for r in dataset.get_resources() if r.get_file_type() in ["xlsx", "xls"]]
     if len(resources) == 0:
@@ -23,7 +23,11 @@ def get_pcodes(dataset, retriever):
         return None
 
     filepath = retriever.download_file(resources[0]["url"])
-    data = read_excel(filepath, sheet_name=None)
+    try:
+        data = read_excel(filepath, sheet_name=None)
+    except:
+        logger.error(f"Could not read gazetteer for {dataset['name']}")
+        return None
     sheetnames = [s for s in data if bool(re.match(".*adm.*[1-7].*", s, re.IGNORECASE))]
 
     if len(sheetnames) == 0:
@@ -35,10 +39,13 @@ def get_pcodes(dataset, retriever):
 
     df = data[sheetname]
     headers = [h for h in df.columns if bool(re.match(".*[1-7].*code?", h, re.IGNORECASE))]
+    headers.sort()
     for header in headers:
+        level = re.findall("\d", header)[0]
+        if level == '':
+            logger.warning(f"Could not determine admin level for {dataset['name']}")
         for pc in df[header]:
-            pcodes.add(pc)
-
-    pcodes = list(pcodes)
+            if [level, pc] not in pcodes:
+                pcodes.append([level, pc])
 
     return pcodes
