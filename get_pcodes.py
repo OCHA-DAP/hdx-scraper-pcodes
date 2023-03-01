@@ -1,6 +1,7 @@
 import logging
 import re
 from pandas import read_excel
+from unicodedata import normalize
 
 logger = logging.getLogger(__name__)
 
@@ -28,24 +29,47 @@ def get_pcodes(dataset, retriever):
     except:
         logger.error(f"Could not read gazetteer for {dataset['name']}")
         return None
-    sheetnames = [s for s in data if bool(re.match(".*adm.*[1-7].*", s, re.IGNORECASE))]
+    sheetnames = [s for s in data if bool(re.match(".*adm(in)?.?[1-7].*", s, re.IGNORECASE))]
 
     if len(sheetnames) == 0:
         logger.error(f"Could not find correct tab in gazetteer for {dataset['name']}")
         return None
 
-    sheetnames.sort()
-    sheetname = sheetnames[-1]
-
-    df = data[sheetname]
-    headers = [h for h in df.columns if bool(re.match(".*[1-7].*code?", h, re.IGNORECASE))]
-    headers.sort()
-    for header in headers:
-        level = re.findall("\d", header)[0]
-        if level == '':
+    for sheetname in sheetnames:
+        level = re.findall("\d", sheetname)[0]
+        if level == "":
             logger.warning(f"Could not determine admin level for {dataset['name']}")
-        for pc in df[header]:
-            if [level, pc] not in pcodes:
-                pcodes.append([level, pc])
+        df = data[sheetname]
+        codeheaders = [h for h in df.columns if bool(re.match(f".*{level}.*code?", h, re.IGNORECASE))]
+        nameheaders = [h for h in df.columns if (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
+                                                 bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
+                       bool(re.search("alt", h, re.IGNORECASE))]
+
+        if len(codeheaders) > 1:
+            pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
+            if len(pcodeheaders) == 1:
+                codeheaders = pcodeheaders
+
+        if len(nameheaders) == 0:
+            logger.error(f"Can't find name header for {dataset['name']} at adm{level}")
+            continue
+
+        if len(nameheaders) > 1:
+            ennameheaders = [n for n in nameheaders if n[-3:].lower() == "_en"]
+            if len(ennameheaders) == 1:
+                nameheaders = ennameheaders
+
+        if len(nameheaders) > 1:
+            logger.warning(f"Found multiple name columns for {dataset['name']} at adm{level}, using first")
+            nameheaders = [nameheaders[0]]
+
+        if len(codeheaders) != 1:
+            logger.error(f"Can't find code header for {dataset['name']} at adm{level}")
+            continue
+
+        for _, row in df[codeheaders + nameheaders].iterrows():
+            name = normalize("NFKD", str(row[1])).encode("ascii", "ignore").decode("ascii")
+            if [level, row[0], name] not in pcodes:
+                pcodes.append([level, row[0], name])
 
     return pcodes
