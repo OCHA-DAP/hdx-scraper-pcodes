@@ -5,6 +5,7 @@ from os.path import expanduser, join
 from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
 from hdx.facades.keyword_arguments import facade
+from hdx.location.country import Country
 from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
@@ -35,7 +36,7 @@ def main(
     configuration = Configuration.read()
 
     if not countries:
-        countries = configuration["countries"]
+        countries = [key for key in Country.countriesdata()["countries"]]
 
     global_pcodes = read_list_from_csv("global_pcodes.csv", headers=1)
 
