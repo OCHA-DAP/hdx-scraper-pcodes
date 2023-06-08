@@ -9,9 +9,9 @@ from hdx.location.country import Country
 from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
-from hdx.utilities.dictandlist import read_list_from_csv, write_list_to_csv
+from hdx.utilities.dictandlist import write_list_to_csv
 
-from get_pcodes import get_pcodes
+from get_pcodes import *
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,6 @@ def main(
     if not countries:
         countries = [key for key in Country.countriesdata()["countries"]]
 
-    global_pcodes = read_list_from_csv("global_pcodes.csv", headers=1)
-
     with temp_dir() as temp_folder:
         with Download(rate_limit={"calls": 1, "period": 0.1}) as downloader:
             retriever = Retrieve(
@@ -48,20 +46,27 @@ def main(
 
             logger.info("Updating global p-codes!")
 
+            global_pcode_info = configuration["global_pcodes"]
+            global_dataset = Dataset.read_from_hdx(global_pcode_info["dataset"])
+            global_pcodes = get_global_pcodes(global_dataset, global_pcode_info, retriever)
+
             for country in countries:
                 dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
                 if not dataset:
                     logger.warning(f"Could not find boundary dataset for {country}")
                     continue
-                pcodes = get_pcodes(dataset, retriever)
+                pcodes = get_pcodes(country, dataset, retriever, global_pcode_info["headers"])
                 if not pcodes:
                     continue
 
-                global_pcodes = [g for g in global_pcodes if g[0] != country]
+                global_pcodes = [g for g in global_pcodes if g[global_pcode_info["headers"]["country"]] != country]
                 for pcode in pcodes:
-                    global_pcodes.append([country, pcode[0], pcode[1], pcode[2]])
+                    global_pcodes.append(pcode)
 
-            write_list_to_csv("global_pcodes.csv", rows=global_pcodes)
+            temp_file = join(temp_folder, global_pcode_info["name"])
+            write_list_to_csv(temp_file, rows=global_pcodes)
+
+            update_resource(global_dataset, temp_file)
 
         logger.info("Finished processing")
 

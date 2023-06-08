@@ -6,7 +6,18 @@ from unicodedata import normalize
 logger = logging.getLogger(__name__)
 
 
-def get_pcodes(dataset, retriever):
+def get_global_pcodes(dataset, dataset_info, retriever):
+    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["name"]]
+
+    _, iterator = retriever.get_tabular_rows(resource[0]["url"], dict_form=True)
+
+    pcodes = list()
+    for row in iterator:
+        pcodes.append(row)
+    return pcodes
+
+
+def get_pcodes(country, dataset, retriever, pcode_headers):
     pcodes = list()
 
     resources = [r for r in dataset.get_resources() if r.get_file_type() in ["xlsx", "xls"]]
@@ -69,7 +80,24 @@ def get_pcodes(dataset, retriever):
 
         for _, row in df[codeheaders + nameheaders].iterrows():
             name = normalize("NFKD", str(row[1])).encode("ascii", "ignore").decode("ascii")
-            if [level, row[0], name] not in pcodes:
-                pcodes.append([level, row[0], name])
+            pcode = {
+                pcode_headers["country"]: country,
+                pcode_headers["level"]: level,
+                pcode_headers["p-code"]: row[0],
+                pcode_headers["name"]: name,
+            }
+            if pcode not in pcodes:
+                pcodes.append(pcode)
 
     return pcodes
+
+
+def update_resource(dataset, file):
+    for resource in dataset.get_resources():
+        if resource.get_file_type() == "csv":
+            resource.set_file_to_upload(file)
+    dataset.update_in_hdx(
+        hxl_update=False,
+        updated_by_script="HDX Scraper: Global P-codes",
+    )
+    return
