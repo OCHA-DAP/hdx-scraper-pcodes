@@ -11,7 +11,7 @@ from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.dictandlist import write_list_to_csv
 
-from get_pcodes import *
+from pcodes import *
 
 logger = logging.getLogger(__name__)
 
