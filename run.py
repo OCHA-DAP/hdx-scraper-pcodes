@@ -53,9 +53,17 @@ def main(
             for country in countries:
                 dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
                 if not dataset:
-                    logger.warning(f"Could not find boundary dataset for {country}")
+                    logger.warning(f"{country}: Could not find boundary dataset")
                     continue
-                pcodes = get_pcodes(country, dataset, retriever, global_pcode_info["headers"])
+                gazetteer = find_gazetteer(dataset, country)
+                if not gazetteer:
+                    continue
+
+                open_gazetteer = get_data(gazetteer, retriever, country)
+                if len(open_gazetteer) == 0:
+                    continue
+
+                pcodes = get_pcodes(open_gazetteer, global_pcode_info["headers"], country)
                 if not pcodes:
                     continue
 
