@@ -15,7 +15,7 @@ from pcodes import *
 
 logger = logging.getLogger(__name__)
 
-lookup = "cods-summary"
+lookup = "hdx-p-coder"
 
 
 def parse_args():
