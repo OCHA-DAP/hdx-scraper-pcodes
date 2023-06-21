@@ -64,7 +64,7 @@ def main(
                     continue
 
                 pcodes = get_pcodes(open_gazetteer, global_pcode_info["headers"], country)
-                if not pcodes:
+                if len(pcodes) == 0:
                     continue
 
                 global_pcodes = [g for g in global_pcodes if g[global_pcode_info["headers"]["country"]] != country]
