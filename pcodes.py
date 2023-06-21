@@ -69,6 +69,12 @@ def get_pcodes(data, pcode_headers, country):
                        bool(re.search("alt", h, re.IGNORECASE))]
 
         if len(codeheaders) == 0:
+            codeheaders = [h for h in df.columns if bool(re.match(f".*pcode?", h, re.IGNORECASE))]
+            if len(codeheaders) != 1:
+                logger.error(f"{country}: Can't find code header at adm{level}")
+                continue
+
+        if len(codeheaders) == 0:
             logger.error(f"{country}: Can't find code header at adm{level}")
             continue
 
