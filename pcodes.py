@@ -40,7 +40,7 @@ def get_data(resource, retriever, country):
     try:
         data = read_excel(filepath, sheet_name=None)
     except:
-        logger.error(f"Could not read {resource['name']}")
+        logger.error(f"{country}: Could not read {resource['name']}")
         return dict()
     sheetnames = [s for s in data if bool(re.match(".*adm(in)?.?[1-7].*", s, re.IGNORECASE))]
 
