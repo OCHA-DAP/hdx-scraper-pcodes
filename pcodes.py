@@ -56,9 +56,12 @@ def get_pcodes(data, pcode_headers, country):
     pcodes = list()
 
     for sheetname in data:
-        level = re.findall("\d", sheetname)[0]
-        if level == "":
-            logger.warning(f"{country}: Could not determine admin level")
+        level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
+        if not level:
+            logger.warning(f"{country}: Could not determine admin level for {sheetname}")
+            continue
+        level = re.search("\d", level.group()).group()
+
         df = data[sheetname]
         codeheaders = [h for h in df.columns if bool(re.match(f".*{level}.*code?", h, re.IGNORECASE))]
         nameheaders = [h for h in df.columns if (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
