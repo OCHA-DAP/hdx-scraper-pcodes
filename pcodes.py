@@ -20,7 +20,7 @@ def get_global_pcodes(dataset, dataset_info, retriever):
 def find_gazetteer(dataset, country):
     resources = [r for r in dataset.get_resources() if r.get_file_type() in ["xlsx", "xls"]]
     if len(resources) == 0:
-        logger.error(f"Could not find gazetteer in {dataset['name']}")
+        logger.error(f"{country}: Could not find gazetteer in {dataset['name']}")
         return None
 
     if len(resources) > 1:
