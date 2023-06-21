@@ -65,14 +65,18 @@ def get_pcodes(data, pcode_headers, country):
                                                  bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
                        bool(re.search("alt", h, re.IGNORECASE))]
 
-        if len(codeheaders) > 1:
-            pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
-            if len(pcodeheaders) == 1:
-                codeheaders = pcodeheaders
+        if len(codeheaders) == 0:
+            logger.error(f"{country}: Can't find code header at adm{level}")
+            continue
 
         if len(nameheaders) == 0:
             logger.error(f"{country}: Can't find name header at adm{level}")
             continue
+
+        if len(codeheaders) > 1:
+            pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
+            if len(pcodeheaders) >= 1:
+                codeheaders = pcodeheaders
 
         if len(nameheaders) > 1:
             ennameheaders = [n for n in nameheaders if n[-3:].lower() == "_en"]
@@ -83,9 +87,9 @@ def get_pcodes(data, pcode_headers, country):
             logger.warning(f"{country}: Found multiple name columns at adm{level}, using first")
             nameheaders = [nameheaders[0]]
 
-        if len(codeheaders) != 1:
-            logger.error(f"{country}: Can't find code header at adm{level}")
-            continue
+        if len(codeheaders) > 1:
+            logger.warning(f"{country}: Found multiple code columns at adm{level}, using first")
+            codeheaders = [codeheaders[0]]
 
         for _, row in df[codeheaders + nameheaders].iterrows():
             name = normalize("NFKD", str(row[1])).encode("ascii", "ignore").decode("ascii")
