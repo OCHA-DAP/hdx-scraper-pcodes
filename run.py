@@ -55,7 +55,7 @@ def main(
                 if not dataset:
                     logger.warning(f"{country}: Could not find boundary dataset")
                     continue
-                gazetteer = find_gazetteer(dataset, country)
+                gazetteer = find_gazetteer(dataset, country, configuration["global_pcodes"]["resource_exceptions"])
                 if not gazetteer:
                     continue
 

@@ -15,3 +15,5 @@ global_pcodes:
     name: "#adm+name"
     parent: "#adm+code+parent"
     date: "#date+start"
+  resource_exceptions:
+    UKR: "UKR_AdminBoundaries_TabularData.xlsx"
