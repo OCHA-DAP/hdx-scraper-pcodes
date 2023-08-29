@@ -79,16 +79,19 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
 
         df = data[sheetname]
         codeheaders = [h for h in df.columns if bool(re.match(f".*{level}.*code?", h, re.IGNORECASE))]
-        nameheaders = [h for h in df.columns if (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
-                                                 bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
-                       bool(re.search("alt", h, re.IGNORECASE))]
+        nameheaders = [
+            h for h in df.columns if
+            (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
+             bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
+            bool(re.search("alt", h, re.IGNORECASE))
+        ]
         parentheaders = []
         if int(level) > 1:
             parentheaders = [h for h in df.columns if bool(re.match(f".*{int(level) - 1}.*code?", h, re.IGNORECASE))]
         dateheaders = [h for h in df.columns if h.lower() == "validon"]
 
         if len(codeheaders) == 0:
-            codeheaders = [h for h in df.columns if bool(re.match(f".*pcode?", h, re.IGNORECASE))]
+            codeheaders = [h for h in df.columns if bool(re.match(".*pcode?", h, re.IGNORECASE))]
             if len(codeheaders) != 1:
                 logger.error(f"{country}: Can't find code header at adm{level}")
                 continue
