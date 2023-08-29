@@ -46,35 +46,29 @@ def main(
                 downloader, temp_folder, "saved_data", temp_folder, save, use_saved
             )
 
-            global_pcode_info = configuration["global_pcodes"]
-            global_dataset = Dataset.read_from_hdx(global_pcode_info["dataset"])
-            global_pcodes = get_global_pcodes(global_dataset, global_pcode_info, retriever)
+            global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
+            global_pcodes = get_global_pcodes(global_dataset, configuration, retriever)
 
             for country in countries:
-                dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
-                if not dataset:
-                    logger.warning(f"{country}: Could not find boundary dataset")
-                    continue
-                gazetteer = find_gazetteer(dataset, country, configuration["global_pcodes"]["resource_exceptions"])
-                if not gazetteer:
-                    continue
+                pcodes = get_pcodes(retriever, country, configuration)
 
-                open_gazetteer = get_data(gazetteer, retriever, country)
-                if len(open_gazetteer) == 0:
-                    continue
-
-                pcodes = get_pcodes(open_gazetteer, global_pcode_info["headers"], country, dataset)
                 if len(pcodes) == 0:
                     continue
 
-                global_pcodes = [g for g in global_pcodes if g[global_pcode_info["headers"]["country"]] != country]
+                global_pcodes = [g for g in global_pcodes if g[configuration["headers"]["country"]] != country]
                 for pcode in pcodes:
                     global_pcodes.append(pcode)
 
-            temp_file = join(temp_folder, global_pcode_info["name"])
+            temp_file = join(temp_folder, configuration["resource_name"])
             write_list_to_csv(temp_file, rows=global_pcodes)
 
-            update_resource(global_dataset, temp_file)
+            for resource in global_dataset.get_resources():
+                if resource.get_file_type() == "csv":
+                    resource.set_file_to_upload(temp_file)
+            global_dataset.update_in_hdx(
+                hxl_update=False,
+                updated_by_script="HDX Scraper: Global P-codes",
+            )
 
         logger.info("Finished processing")
 

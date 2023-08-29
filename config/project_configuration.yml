@@ -1,19 +1,22 @@
-global_pcodes:
-  dataset: "global-pcodes"
-  name: "global_pcodes.csv"
-  headers:
-    country: "Location"
-    level: "Admin Level"
-    p-code: "P-Code"
-    name: "Name"
-    parent: "Parent P-Code"
-    date: "Valid from date"
-  headers_hxl:
-    country: "#country+name"
-    level: "#geo+admin_level"
-    p-code: "#adm+code"
-    name: "#adm+name"
-    parent: "#adm+code+parent"
-    date: "#date+start"
-  resource_exceptions:
-    UKR: "UKR_AdminBoundaries_TabularData.xlsx"
+dataset_name: "global-pcodes"
+
+resource_name: "global_pcodes.csv"
+
+headers:
+  country: "Location"
+  level: "Admin Level"
+  p-code: "P-Code"
+  name: "Name"
+  parent: "Parent P-Code"
+  date: "Valid from date"
+
+headers_hxl:
+  country: "#country+name"
+  level: "#geo+admin_level"
+  p-code: "#adm+code"
+  name: "#adm+name"
+  parent: "#adm+code+parent"
+  date: "#date+start"
+
+resource_exceptions:
+  UKR: "UKR_AdminBoundaries_TabularData.xlsx"

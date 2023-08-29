@@ -5,11 +5,13 @@ from pandas import read_excel, Timestamp
 from unicodedata import normalize
 from xlrd import xldate_as_datetime
 
+from hdx.data.dataset import Dataset
+
 logger = logging.getLogger(__name__)
 
 
 def get_global_pcodes(dataset, dataset_info, retriever):
-    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["name"]]
+    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["resource_name"]]
 
     data_headers = [val for val in dataset_info["headers"].values()]
     hxl_headers = [val for val in dataset_info["headers_hxl"].values()]
@@ -65,7 +67,7 @@ def get_data(resource, retriever, country):
     return data_subset
 
 
-def get_pcodes(data, pcode_headers, country, dataset):
+def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
     pcodes = list()
 
     for sheetname in data:
@@ -159,12 +161,20 @@ def get_pcodes(data, pcode_headers, country, dataset):
     return pcodes
 
 
-def update_resource(dataset, file):
-    for resource in dataset.get_resources():
-        if resource.get_file_type() == "csv":
-            resource.set_file_to_upload(file)
-    dataset.update_in_hdx(
-        hxl_update=False,
-        updated_by_script="HDX Scraper: Global P-codes",
-    )
-    return
+def get_pcodes(retriever, country, configuration):
+    pcodes = list()
+    dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
+    if not dataset:
+        logger.warning(f"{country}: Could not find boundary dataset")
+        return pcodes
+
+    gazetteer = find_gazetteer(dataset, country, configuration["resource_exceptions"])
+    if not gazetteer:
+        return pcodes
+
+    open_gazetteer = get_data(gazetteer, retriever, country)
+    if len(open_gazetteer) == 0:
+        return pcodes
+
+    pcodes = get_pcodes_from_gazetteer(open_gazetteer, configuration["headers"], country, dataset)
+    return pcodes
