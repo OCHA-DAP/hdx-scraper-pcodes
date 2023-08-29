@@ -45,12 +45,12 @@ class TestPCodes:
                 )
 
                 dataset = Dataset.load_from_json(join(input_folder, "dataset-cod-ab-afg.json"))
-                gazetteer = find_gazetteer(dataset, self.country)
+                gazetteer = find_gazetteer(dataset, self.country, dict())
                 assert gazetteer["name"] == "AFG_AdminBoundaries_TabularData.xlsx"
                 assert gazetteer["url"] == "https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/0238eb07-4f98-4f71-9a03-905c4414f476/download/afg_adminboundaries_tabulardata.xlsx"
 
                 open_gazetteer = get_data(gazetteer, retriever, self.country)
                 assert list(open_gazetteer.keys()) == ["ADM1", "ADM2"]
 
-                pcodes = get_pcodes(open_gazetteer, configuration["global_pcodes"]["headers"], self.country)
+                pcodes = get_pcodes(open_gazetteer, configuration["global_pcodes"]["headers"], self.country, dataset)
                 assert pcodes == self.som_pcodes
