@@ -86,7 +86,6 @@ if __name__ == "__main__":
         countries = countries.split(",")
     facade(
         main,
-        hdx_site="prod",
         user_agent_config_yaml=join(expanduser("~"), ".useragents.yml"),
         user_agent_lookup=lookup,
         project_config_yaml=join("config", "project_configuration.yml"),
