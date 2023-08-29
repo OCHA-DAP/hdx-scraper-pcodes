@@ -12,9 +12,9 @@ from pcodes import *
 
 
 class TestPCodes:
-    country = "SOM"
+    country = "AFG"
     som_pcodes = read_list_from_csv(
-        join("tests", "fixtures", "som_pcodes.csv"),
+        join("tests", "fixtures", "afg_pcodes.csv"),
         headers=1,
         dict_form=True,
     )
@@ -44,10 +44,10 @@ class TestPCodes:
                     downloader, folder, input_folder, folder, False, True
                 )
 
-                dataset = Dataset.load_from_json(join(input_folder, "dataset-cod-ab-som.json"))
+                dataset = Dataset.load_from_json(join(input_folder, "dataset-cod-ab-afg.json"))
                 gazetteer = find_gazetteer(dataset, self.country)
-                assert gazetteer["name"] == "SOM_AdminBoundaries_TabularData.xlsx"
-                assert gazetteer["url"] == "https://data.humdata.org/dataset/ec140a63-5330-4376-a3df-c7ebf73cfc3c/resource/2bb93a9e-bb50-42e3-bd30-5b0f86b16ee5/download/som_adminboundaries_tabulardata.xlsx"
+                assert gazetteer["name"] == "AFG_AdminBoundaries_TabularData.xlsx"
+                assert gazetteer["url"] == "https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/0238eb07-4f98-4f71-9a03-905c4414f476/download/afg_adminboundaries_tabulardata.xlsx"
 
                 open_gazetteer = get_data(gazetteer, retriever, self.country)
                 assert list(open_gazetteer.keys()) == ["ADM1", "ADM2"]

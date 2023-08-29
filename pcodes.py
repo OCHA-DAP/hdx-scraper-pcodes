@@ -1,7 +1,9 @@
 import logging
 import re
-from pandas import read_excel
+
+from pandas import read_excel, Timestamp
 from unicodedata import normalize
+from xlrd import xldate_as_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -9,11 +11,18 @@ logger = logging.getLogger(__name__)
 def get_global_pcodes(dataset, dataset_info, retriever):
     resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["name"]]
 
-    _, iterator = retriever.get_tabular_rows(resource[0]["url"], dict_form=True)
+    data_headers = [val for val in dataset_info["headers"].values()]
+    hxl_headers = [val for val in dataset_info["headers_hxl"].values()]
+    headers, iterator = retriever.get_tabular_rows(resource[0]["url"], dict_form=True)
 
     pcodes = list()
+    hxl_row = {data_headers[i]: hxl_headers[i] for i in range(len(data_headers))}
+    pcodes.append(hxl_row)
     for row in iterator:
-        pcodes.append(row)
+        if row[headers[0]][0] == "#":
+            continue
+        pcode = {data_header: row.get(data_header) for data_header in data_headers}
+        pcodes.append(pcode)
     return pcodes
 
 
@@ -52,7 +61,7 @@ def get_data(resource, retriever, country):
     return data_subset
 
 
-def get_pcodes(data, pcode_headers, country):
+def get_pcodes(data, pcode_headers, country, dataset):
     pcodes = list()
 
     for sheetname in data:
@@ -67,6 +76,10 @@ def get_pcodes(data, pcode_headers, country):
         nameheaders = [h for h in df.columns if (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
                                                  bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
                        bool(re.search("alt", h, re.IGNORECASE))]
+        parentheaders = []
+        if int(level) > 1:
+            parentheaders = [h for h in df.columns if bool(re.match(f".*{int(level) - 1}.*code?", h, re.IGNORECASE))]
+        dateheaders = [h for h in df.columns if h.lower() == "validon"]
 
         if len(codeheaders) == 0:
             codeheaders = [h for h in df.columns if bool(re.match(f".*pcode?", h, re.IGNORECASE))]
@@ -81,6 +94,12 @@ def get_pcodes(data, pcode_headers, country):
         if len(nameheaders) == 0:
             logger.error(f"{country}: Can't find name header at adm{level}")
             continue
+
+        if len(parentheaders) == 0 and int(level) > 1:
+            logger.warning(f"{country}: Can't find parent code header at adm{level}")
+
+        if len(dateheaders) == 0:
+            logger.warning(f"{country}: Can't find date header at adm{level}, using dataset reference date")
 
         if len(codeheaders) > 1:
             pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
@@ -100,13 +119,35 @@ def get_pcodes(data, pcode_headers, country):
             logger.warning(f"{country}: Found multiple code columns at adm{level}, using first")
             codeheaders = [codeheaders[0]]
 
-        for _, row in df[codeheaders + nameheaders].iterrows():
-            name = normalize("NFKD", str(row[1])).encode("ascii", "ignore").decode("ascii")
+        if len(parentheaders) > 1 and int(level) > 1:
+            logger.warning(f"{country}: Found multiple parent code columns at adm{level}, using first")
+            parentheaders = [parentheaders[0]]
+
+        for _, row in df[codeheaders + nameheaders + parentheaders + dateheaders].iterrows():
+            if "#" in str(row[codeheaders[0]]):
+                continue
+            name = normalize("NFKD", str(row[nameheaders[0]])).encode("ascii", "ignore").decode("ascii")
+            row_date = ""
+            if len(dateheaders) == 1:
+                row_date = row[dateheaders[0]]
+                if type(row_date) is Timestamp:
+                    row_date = row_date.strftime("%Y-%m-%d")
+                elif type(row_date) is int:
+                    row_date = xldate_as_datetime(row_date, 0)
+                    row_date = row_date.strftime("%Y-%m-%d")
+            if len(dateheaders) == 0:
+                row_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
+
+            row_parent = country
+            if len(parentheaders) == 1:
+                row_parent = row[parentheaders[0]]
             pcode = {
                 pcode_headers["country"]: country,
                 pcode_headers["level"]: level,
-                pcode_headers["p-code"]: row[0],
+                pcode_headers["p-code"]: row[codeheaders[0]],
                 pcode_headers["name"]: name,
+                pcode_headers["parent"]: row_parent,
+                pcode_headers["date"]: row_date,
             }
             if pcode not in pcodes:
                 pcodes.append(pcode)

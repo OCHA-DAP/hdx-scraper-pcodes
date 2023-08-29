@@ -35,6 +35,8 @@ def main(
 ):
     configuration = Configuration.read()
 
+    logger.info("##### Updating global p-codes #####")
+
     if not countries:
         countries = [key for key in Country.countriesdata()["countries"]]
 
@@ -43,8 +45,6 @@ def main(
             retriever = Retrieve(
                 downloader, temp_folder, "saved_data", temp_folder, save, use_saved
             )
-
-            logger.info("Updating global p-codes!")
 
             global_pcode_info = configuration["global_pcodes"]
             global_dataset = Dataset.read_from_hdx(global_pcode_info["dataset"])
@@ -63,7 +63,7 @@ def main(
                 if len(open_gazetteer) == 0:
                     continue
 
-                pcodes = get_pcodes(open_gazetteer, global_pcode_info["headers"], country)
+                pcodes = get_pcodes(open_gazetteer, global_pcode_info["headers"], country, dataset)
                 if len(pcodes) == 0:
                     continue
 

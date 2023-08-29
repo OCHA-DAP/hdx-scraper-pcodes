@@ -6,3 +6,12 @@ global_pcodes:
     level: "Admin Level"
     p-code: "P-Code"
     name: "Name"
+    parent: "Parent P-Code"
+    date: "Valid from date"
+  headers_hxl:
+    country: "#country+name"
+    level: "#geo+admin_level"
+    p-code: "#adm+code"
+    name: "#adm+name"
+    parent: "#adm+code+parent"
+    date: "#date+start"
