@@ -8,17 +8,10 @@ from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.useragent import UserAgent
-from pcodes import *
+from pcodes import get_global_pcodes, get_pcodes
 
 
 class TestPCodes:
-    country = "AFG"
-    som_pcodes = read_list_from_csv(
-        join("tests", "fixtures", "afg_pcodes.csv"),
-        headers=1,
-        dict_form=True,
-    )
-
     @pytest.fixture(scope="function")
     def configuration(self):
         UserAgent.set_global("test")
@@ -29,6 +22,13 @@ class TestPCodes:
         )
         return Configuration.read()
 
+    @pytest.fixture(scope="class")
+    def Dataset(self):
+        class Dataset:
+            @staticmethod
+            def read_from_hdx():
+                return Dataset.load_from_json(join("tests", "input", "dataset-cod-ab-afg.json"))
+
     @pytest.fixture(scope="function")
     def fixtures(self):
         return join("tests", "fixtures")
@@ -38,19 +38,25 @@ class TestPCodes:
         return join(fixtures, "input")
 
     def test_pcodes(self, configuration, fixtures, input_folder):
+        afg_pcodes = read_list_from_csv(
+            join("tests", "fixtures", "afg_pcodes.csv"),
+            headers=1,
+            dict_form=True,
+        )
+        global_pcodes = read_list_from_csv(
+            join("tests", "fixtures", "input", "download-global-pcodes.csv"),
+            headers=1,
+            dict_form=True,
+        )
+
         with temp_dir() as folder:
             with Download() as downloader:
                 retriever = Retrieve(
                     downloader, folder, input_folder, folder, False, True
                 )
+                global_dataset = Dataset.load_from_json(join(input_folder, "dataset-global-pcodes.json"))
+                global_test_pcodes = get_global_pcodes(global_dataset, configuration, retriever)
+                assert global_test_pcodes == global_pcodes
 
-                dataset = Dataset.load_from_json(join(input_folder, "dataset-cod-ab-afg.json"))
-                gazetteer = find_gazetteer(dataset, self.country, dict())
-                assert gazetteer["name"] == "AFG_AdminBoundaries_TabularData.xlsx"
-                assert gazetteer["url"] == "https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/0238eb07-4f98-4f71-9a03-905c4414f476/download/afg_adminboundaries_tabulardata.xlsx"
-
-                open_gazetteer = get_data(gazetteer, retriever, self.country)
-                assert list(open_gazetteer.keys()) == ["ADM1", "ADM2"]
-
-                pcodes = get_pcodes(open_gazetteer, configuration["global_pcodes"]["headers"], self.country, dataset)
-                assert pcodes == self.som_pcodes
+                pcodes = get_pcodes(retriever, "AFG", configuration)
+                assert pcodes == afg_pcodes
