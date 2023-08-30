@@ -1,5 +1,5 @@
 ### Collector for Global P-codes dataset
-[![Build Status](https://github.com/OCHA-DAP/hdx-scraper-pcodes/actions/workflows/run-python-tests.yml/badge.svg)](https://github.com/OCHA-DAP/hdx-scraper-pcodes/actions/workflows/run-python-tests.yml) [![Coverage Status](https://coveralls.io/repos/github/OCHA-DAP/hdx-scraper-pcodes/badge.svg?branch=main&ts=1)](https://coveralls.io/github/OCHA-DAP/hdx-scraper-pcodes?branch=main)
+[![Build Status](https://github.com/OCHA-DAP/hdx-scraper-pcodes/actions/workflows/run-python-tests.yml/badge.svg)](https://github.com/OCHA-DAP/hdx-scraper-pcodes/actions/workflows/run-python-tests.yml) [![Coverage Status](https://coveralls.io/repos/github/OCHA-DAP/hdx-scraper-pcodes/badge.svg?branch=main)](https://coveralls.io/github/OCHA-DAP/hdx-scraper-pcodes?branch=main)
 
 This script collects the latest P-codes, administrative names, and dates from the CODs data on HDX and updates a new HDX dataset.
 
