@@ -1,5 +1,5 @@
 Location,Admin Level,P-Code,Name,Parent P-Code,Valid from date
-#country+name,#geo+admin_level,#adm+code,#adm+name,#adm+code+parent,#date+start
+#country+code,#geo+admin_level,#adm+code,#adm+name,#adm+code+parent,#date+start
 AFG,1,AF11,Ghazni,AFG,11/17/21
 AFG,1,AF34,Nimroz,AFG,11/17/21
 AFG,1,AF16,Nuristan,AFG,11/17/21

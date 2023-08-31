@@ -11,7 +11,7 @@ headers:
   date: "Valid from date"
 
 headers_hxl:
-  country: "#country+name"
+  country: "#country+code"
   level: "#geo+admin_level"
   p-code: "#adm+code"
   name: "#adm+name"
