@@ -59,6 +59,15 @@ def main(
                 for pcode in pcodes:
                     global_pcodes.append(pcode)
 
+            global_pcodes = [global_pcodes[0]] + sorted(
+                global_pcodes[1:],
+                key=lambda k: (
+                    k[configuration["headers"]["country"]],
+                    k[configuration["headers"]["level"]],
+                    k[configuration["headers"]["p-code"]],
+                ),
+            )
+
             temp_file = join(temp_folder, configuration["resource_name"])
             write_list_to_csv(temp_file, rows=global_pcodes)
 
