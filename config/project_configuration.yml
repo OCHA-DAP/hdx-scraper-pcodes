@@ -1,6 +1,8 @@
 dataset_name: "global-pcodes"
 
-resource_name: "global_pcodes.csv"
+resource_name:
+  all: "global_pcodes.csv"
+  adm_12: "global_pcodes_adm_1_2.csv"
 
 headers:
   country: "Location"

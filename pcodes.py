@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_global_pcodes(dataset, dataset_info, retriever):
-    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["resource_name"]]
+    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["resource_name"]["all"]]
 
     data_headers = [val for val in dataset_info["headers"].values()]
     hxl_headers = [val for val in dataset_info["headers_hxl"].values()]

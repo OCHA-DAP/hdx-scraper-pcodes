@@ -68,12 +68,20 @@ def main(
                 ),
             )
 
-            temp_file = join(temp_folder, configuration["resource_name"])
-            write_list_to_csv(temp_file, rows=global_pcodes)
+            adm12_pcodes = [global_pcodes[0]] + [
+                g for g in global_pcodes if g[configuration["headers"]["level"]] in ["1", "2"]
+            ]
+
+            temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
+            temp_file_12 = join(temp_folder, configuration["resource_name"]["adm_12"])
+            write_list_to_csv(temp_file_all, rows=global_pcodes)
+            write_list_to_csv(temp_file_12, rows=adm12_pcodes)
 
             for resource in global_dataset.get_resources():
-                if resource.get_file_type() == "csv":
-                    resource.set_file_to_upload(temp_file)
+                if resource["name"] == configuration["resource_name"]["all"]:
+                    resource.set_file_to_upload(temp_file_all)
+                if resource["name"] == configuration["resource_name"]["adm_12"]:
+                    resource.set_file_to_upload(temp_file_12)
             global_dataset.update_in_hdx(
                 hxl_update=False,
                 updated_by_script="HDX Scraper: Global P-codes",
