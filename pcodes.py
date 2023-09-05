@@ -69,6 +69,7 @@ def get_data(resource, retriever, country):
 
 def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
     pcodes = list()
+    dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
     for sheetname in data:
         level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
@@ -148,7 +149,7 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
                     row_date = xldate_as_datetime(row_date, 0)
                     row_date = row_date.strftime("%Y-%m-%d")
             if len(dateheaders) == 0:
-                row_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
+                row_date = dataset_date
 
             row_parent = country
             if len(parentheaders) == 1:
