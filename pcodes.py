@@ -139,8 +139,8 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
         for _, row in df[codeheaders + nameheaders + parentheaders + dateheaders].iterrows():
             if "#" in str(row[codeheaders[0]]):
                 continue
-            code = row[codeheaders[0]]
-            if code is None or code == "" or code.lower() == "not reported":
+            code = str(row[codeheaders[0]])
+            if code == "None" or code == "" or code.lower() == "not reported":
                 continue
             name = normalize("NFKD", str(row[nameheaders[0]])).encode("ascii", "ignore").decode("ascii")
             if name.islower() or name.isupper():
