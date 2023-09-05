@@ -139,6 +139,9 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
         for _, row in df[codeheaders + nameheaders + parentheaders + dateheaders].iterrows():
             if "#" in str(row[codeheaders[0]]):
                 continue
+            code = row[codeheaders[0]]
+            if code is None or code == "" or code.lower() == "not reported":
+                continue
             name = normalize("NFKD", str(row[nameheaders[0]])).encode("ascii", "ignore").decode("ascii")
             row_date = ""
             if len(dateheaders) == 1:
@@ -157,7 +160,7 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
             pcode = {
                 pcode_headers["country"]: country,
                 pcode_headers["level"]: level,
-                pcode_headers["p-code"]: row[codeheaders[0]],
+                pcode_headers["p-code"]: code,
                 pcode_headers["name"]: name,
                 pcode_headers["parent"]: row_parent,
                 pcode_headers["date"]: row_date,
