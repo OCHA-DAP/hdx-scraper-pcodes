@@ -143,6 +143,8 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
             if code is None or code == "" or code.lower() == "not reported":
                 continue
             name = normalize("NFKD", str(row[nameheaders[0]])).encode("ascii", "ignore").decode("ascii")
+            if name.islower() or name.isupper():
+                name = name.title()
             row_date = ""
             if len(dateheaders) == 1:
                 row_date = row[dateheaders[0]]
