@@ -85,9 +85,12 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
              bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
             bool(re.search("alt", h, re.IGNORECASE))
         ]
+        parentlevel = int(level) - 1
+        if country == "ARM" and level == "3":
+            parentlevel = 1
         parentheaders = []
         if int(level) > 1:
-            parentheaders = [h for h in df.columns if bool(re.match(f".*{int(level) - 1}.*code?", h, re.IGNORECASE))]
+            parentheaders = [h for h in df.columns if bool(re.match(f".*{parentlevel}.*code?", h, re.IGNORECASE))]
         dateheaders = [h for h in df.columns if h.lower() == "validon"]
 
         if len(codeheaders) == 0:
