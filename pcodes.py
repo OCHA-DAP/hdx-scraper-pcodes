@@ -1,7 +1,7 @@
 import logging
 import re
 
-from pandas import read_excel, Timestamp
+from pandas import isna, read_excel, Timestamp
 from unicodedata import normalize
 from xlrd import xldate_as_datetime
 
@@ -140,9 +140,12 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
             if "#" in str(row[codeheaders[0]]):
                 continue
             code = str(row[codeheaders[0]])
-            if code == "None" or code == "" or code.lower() == "not reported":
+            if code in ["None", "", " "] or code.lower() == "not reported":
                 continue
-            name = normalize("NFKD", str(row[nameheaders[0]])).encode("ascii", "ignore").decode("ascii")
+            name = row[nameheaders[0]]
+            if isna(name):
+                continue
+            name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
             if name.islower() or name.isupper():
                 name = name.title()
             row_date = ""
