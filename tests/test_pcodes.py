@@ -27,6 +27,8 @@ class TestPCodes:
         class Dataset:
             @staticmethod
             def read_from_hdx(dataset_name):
+                if dataset_name == "cod-ab-mmr":
+                    return None
                 return Dataset.load_from_json(join("tests", "input", f"dataset-{dataset_name}.json"))
 
     @pytest.fixture(scope="function")
@@ -68,3 +70,9 @@ class TestPCodes:
 
                 pcodes = get_pcodes(retriever, "ARM", configuration)
                 assert pcodes == arm_pcodes
+
+                pcodes = get_pcodes(retriever, "MMR", configuration)
+                assert pcodes == list()
+
+                pcodes = get_pcodes(retriever, "BES", configuration)
+                assert pcodes == list()
