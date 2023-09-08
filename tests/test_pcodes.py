@@ -26,8 +26,8 @@ class TestPCodes:
     def Dataset(self):
         class Dataset:
             @staticmethod
-            def read_from_hdx():
-                return Dataset.load_from_json(join("tests", "input", "dataset-cod-ab-afg.json"))
+            def read_from_hdx(dataset_name):
+                return Dataset.load_from_json(join("tests", "input", f"dataset-{dataset_name}.json"))
 
     @pytest.fixture(scope="function")
     def fixtures(self):
@@ -40,6 +40,11 @@ class TestPCodes:
     def test_pcodes(self, configuration, fixtures, input_folder):
         afg_pcodes = read_list_from_csv(
             join("tests", "fixtures", "afg_pcodes.csv"),
+            headers=1,
+            dict_form=True,
+        )
+        arm_pcodes = read_list_from_csv(
+            join("tests", "fixtures", "arm_pcodes.csv"),
             headers=1,
             dict_form=True,
         )
@@ -60,3 +65,6 @@ class TestPCodes:
 
                 pcodes = get_pcodes(retriever, "AFG", configuration)
                 assert pcodes == afg_pcodes
+
+                pcodes = get_pcodes(retriever, "ARM", configuration)
+                assert pcodes == arm_pcodes
