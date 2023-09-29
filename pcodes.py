@@ -73,9 +73,6 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
 
     for sheetname in data:
         level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
-        if not level:
-            logger.warning(f"{country}: Could not determine admin level for {sheetname}")
-            continue
         level = re.search("\d", level.group()).group()
 
         df = data[sheetname]
