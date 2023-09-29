@@ -76,7 +76,8 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
         level = re.search("\d", level.group()).group()
 
         df = data[sheetname]
-        codeheaders = [h for h in df.columns if bool(re.match(f".*{level}.*code?", h, re.IGNORECASE))]
+        codeheaders = [h for h in df.columns if bool(re.match(f".*{level}.*code?", h, re.IGNORECASE)) and
+                       "unhcr" not in h.lower()]
         nameheaders = [
             h for h in df.columns if
             (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
@@ -88,7 +89,8 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
             parentlevel = 1
         parentheaders = []
         if int(level) > 1:
-            parentheaders = [h for h in df.columns if bool(re.match(f".*{parentlevel}.*code?", h, re.IGNORECASE))]
+            parentheaders = [h for h in df.columns if bool(re.match(f".*{parentlevel}.*code?", h, re.IGNORECASE))
+                             and "unhcr" not in h.lower()]
         dateheaders = [h for h in df.columns if h.lower() == "validon"]
 
         if len(codeheaders) == 0:
