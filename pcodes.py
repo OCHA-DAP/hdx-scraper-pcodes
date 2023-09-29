@@ -182,8 +182,6 @@ def get_pcodes(retriever, country, configuration):
         return pcodes
 
     open_gazetteer = get_data(gazetteer, retriever, country)
-    if len(open_gazetteer) == 0:
-        return pcodes
 
     pcodes = get_pcodes_from_gazetteer(open_gazetteer, configuration["headers"], country, dataset)
     return pcodes
