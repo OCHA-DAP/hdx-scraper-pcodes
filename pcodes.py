@@ -100,41 +100,35 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
                 logger.error(f"{country}: Can't find code header at adm{level}")
                 continue
 
-        if len(codeheaders) == 0:
-            logger.error(f"{country}: Can't find code header at adm{level}")
-            continue
+        if len(codeheaders) > 1:
+            pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
+            if len(pcodeheaders) >= 1:
+                codeheaders = [pcodeheaders[0]]
+            else:
+                logger.warning(f"{country}: Found multiple code columns at adm{level}, using first")
+                codeheaders = [codeheaders[0]]
 
         if len(nameheaders) == 0:
             logger.error(f"{country}: Can't find name header at adm{level}")
             continue
 
-        if len(parentheaders) == 0 and int(level) > 1:
-            logger.warning(f"{country}: Can't find parent code header at adm{level}")
-
-        if len(dateheaders) == 0:
-            logger.warning(f"{country}: Can't find date header at adm{level}, using dataset reference date")
-
-        if len(codeheaders) > 1:
-            pcodeheaders = [c for c in codeheaders if "pcode" in c.lower()]
-            if len(pcodeheaders) >= 1:
-                codeheaders = pcodeheaders
-
         if len(nameheaders) > 1:
             ennameheaders = [n for n in nameheaders if n[-3:].lower() == "_en"]
             if len(ennameheaders) == 1:
                 nameheaders = ennameheaders
+            else:
+                logger.warning(f"{country}: Found multiple name columns at adm{level}, using first")
+                nameheaders = [nameheaders[0]]
 
-        if len(nameheaders) > 1:
-            logger.warning(f"{country}: Found multiple name columns at adm{level}, using first")
-            nameheaders = [nameheaders[0]]
-
-        if len(codeheaders) > 1:
-            logger.warning(f"{country}: Found multiple code columns at adm{level}, using first")
-            codeheaders = [codeheaders[0]]
+        if len(parentheaders) == 0 and int(level) > 1:
+            logger.warning(f"{country}: Can't find parent code header at adm{level}")
 
         if len(parentheaders) > 1 and int(level) > 1:
             logger.warning(f"{country}: Found multiple parent code columns at adm{level}, using first")
             parentheaders = [parentheaders[0]]
+
+        if len(dateheaders) == 0:
+            logger.warning(f"{country}: Can't find date header at adm{level}, using dataset reference date")
 
         for _, row in df[codeheaders + nameheaders + parentheaders + dateheaders].iterrows():
             if "#" in str(row[codeheaders[0]]):
