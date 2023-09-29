@@ -50,6 +50,11 @@ class TestPCodes:
             headers=1,
             dict_form=True,
         )
+        idn_pcodes = read_list_from_csv(
+            join("tests", "fixtures", "idn_pcodes.csv"),
+            headers=1,
+            dict_form=True,
+        )
         global_pcodes = read_list_from_csv(
             join("tests", "fixtures", "input", "download-global-pcodes.csv"),
             headers=1,
@@ -70,6 +75,9 @@ class TestPCodes:
 
                 pcodes = get_pcodes(retriever, "ARM", configuration)
                 assert pcodes == arm_pcodes
+
+                pcodes = get_pcodes(retriever, "IDN", configuration)
+                assert pcodes == idn_pcodes
 
                 pcodes = get_pcodes(retriever, "MMR", configuration)
                 assert pcodes == list()
