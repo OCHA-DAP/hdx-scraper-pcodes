@@ -67,7 +67,7 @@ def get_data(resource, retriever, country):
     return data_subset
 
 
-def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
+def get_pcodes_from_gazetteer(data, pcode_headers, non_latin_langs, country, dataset):
     pcodes = list()
     dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
@@ -87,6 +87,8 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
              bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
             bool(re.search("alt", h, re.IGNORECASE))
         ]
+        if country == "CMR":
+            nameheaders = [f"ADM{level}_FR"]
         parentlevel = int(level) - 1
         if country == "ARM" and level == "3":
             parentlevel = 1
@@ -119,8 +121,12 @@ def get_pcodes_from_gazetteer(data, pcode_headers, country, dataset):
             if len(ennameheaders) == 1:
                 nameheaders = ennameheaders
             else:
-                logger.warning(f"{country}: Found multiple name columns at adm{level}, using first")
-                nameheaders = [nameheaders[0]]
+                latin_nameheaders = [n for n in nameheaders if n[-3] == "_" and n[-2:].lower() not in non_latin_langs]
+                if len(latin_nameheaders) > 0:
+                    nameheaders = [latin_nameheaders[0]]
+                else:
+                    logger.warning(f"{country}: Found only non-latin alphabet name columns at adm{level}")
+                    nameheaders = [nameheaders[0]]
 
         if len(parentheaders) == 0 and int(level) > 1:
             logger.warning(f"{country}: Can't find parent code header at adm{level}")
@@ -185,5 +191,11 @@ def get_pcodes(retriever, country, configuration):
 
     open_gazetteer = get_data(gazetteer, retriever, country)
 
-    pcodes = get_pcodes_from_gazetteer(open_gazetteer, configuration["headers"], country, dataset)
+    pcodes = get_pcodes_from_gazetteer(
+        open_gazetteer,
+        configuration["headers"],
+        configuration["non_latin_alphabets"],
+        country,
+        dataset,
+    )
     return pcodes

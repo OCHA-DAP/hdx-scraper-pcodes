@@ -22,3 +22,20 @@ headers_hxl:
 
 resource_exceptions:
   UKR: "UKR_AdminBoundaries_TabularData.xlsx"
+
+non_latin_alphabets:
+  - "ar"
+  - "bg"
+  - "da"
+  - "el"
+  - "fa"
+  - "ka"
+  - "ky"
+  - "lo"
+  - "mn"
+  - "ru"
+  - "si"
+  - "ta"
+  - "th"
+  - "ua"
+  - "vi"
