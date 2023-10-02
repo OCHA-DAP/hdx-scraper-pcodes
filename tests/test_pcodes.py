@@ -84,3 +84,6 @@ class TestPCodes:
 
                 pcodes = get_pcodes(retriever, "BES", configuration)
                 assert pcodes == list()
+
+                pcodes = get_pcodes(retriever, "MKD", configuration)
+                assert pcodes == list()
