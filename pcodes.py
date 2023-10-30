@@ -5,6 +5,7 @@ from pandas import isna, read_excel, Timestamp
 from unicodedata import normalize
 from xlrd import xldate_as_datetime
 
+from hdx.location.country import Country
 from hdx.data.dataset import Dataset
 
 logger = logging.getLogger(__name__)
@@ -208,20 +209,38 @@ def get_pcode_lengths(global_pcodes):
             continue
         if country not in pcode_lengths:
             country_code = row["P-Code"][:3]
-            country_code = re.match("[a-z]*", country_code, re.IGNORECASE).group()
-            country_length = str(len(country_code))
-            pcode_lengths[country] = {"Location": row["Location"], "Country Length": country_length}
+            country_info = Country.get_country_info_from_iso3(country_code)
+            if not country_info:
+                country_code = row["P-Code"][:2]
+                country_info = Country.get_country_info_from_iso2(country_code)
+            if not country_info:
+                country_code = ""
+            country_length = len(country_code)
+            pcode_lengths[country] = {
+                "Location": row["Location"],
+                "Country Length": str(country_length),
+                "Admin 1 Length": None,
+                "Admin 2 Length": None,
+                "Admin 3 Length": None,
+                "Admin 4 Length": None,
+            }
+        else:
+            country_length = int(pcode_lengths[country]["Country Length"])
 
         field = f"Admin {row['Admin Level']} Length"
-        stored_lengths = pcode_lengths[country].get(field)
-        new_length = str(len(row["P-Code"]))
+        if row["Admin Level"] == "1":
+            field_length = str(len(row["P-Code"]) - country_length)
+        else:
+            field_length = str(len(row["P-Code"]) - len(row["Parent P-Code"]))
+        stored_lengths = pcode_lengths[country][field]
+
         if not stored_lengths:
-            pcode_lengths[country][field] = new_length
+            pcode_lengths[country][field] = str(field_length)
             continue
         stored_lengths = stored_lengths.split("|")
-        if new_length in stored_lengths:
+        if field_length in stored_lengths:
             continue
-        stored_lengths.append(new_length)
+        stored_lengths.append(field_length)
         all_lengths = "|".join(stored_lengths)
         pcode_lengths[country][field] = all_lengths
 

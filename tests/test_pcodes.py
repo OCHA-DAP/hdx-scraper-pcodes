@@ -8,7 +8,7 @@ from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.useragent import UserAgent
-from pcodes import get_global_pcodes, get_pcodes
+from pcodes import get_global_pcodes, get_pcodes, get_pcode_lengths
 
 
 class TestPCodes:
@@ -60,6 +60,11 @@ class TestPCodes:
             headers=1,
             dict_form=True,
         )
+        pcode_lengths = read_list_from_csv(
+            join("tests", "fixtures", "global_pcode_lengths.csv"),
+            headers=1,
+            dict_form=True,
+        )
 
         with temp_dir() as folder:
             with Download() as downloader:
@@ -73,6 +78,9 @@ class TestPCodes:
                     retriever,
                 )
                 assert global_test_pcodes == global_pcodes
+
+                test_pcode_lengths = get_pcode_lengths(global_pcodes)
+                assert test_pcode_lengths == pcode_lengths
 
                 pcodes = get_pcodes(retriever, "AFG", configuration)
                 assert pcodes == afg_pcodes
