@@ -59,7 +59,7 @@ def main(
                 if len(pcodes) == 0:
                     continue
 
-                global_pcodes = [g for g in global_pcodes if g[configuration["headers"]["country"]] != country]
+                global_pcodes = [g for g in global_pcodes if g["Location"] != country]
                 for pcode in pcodes:
                     global_pcodes.append(pcode)
 
@@ -73,7 +73,7 @@ def main(
             )
 
             adm12_pcodes = [global_pcodes[0]] + [
-                g for g in global_pcodes if g[configuration["headers"]["level"]] in ["1", "2"]
+                g for g in global_pcodes if g["Admin Level"] in ["1", "2"]
             ]
 
             temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
