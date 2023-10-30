@@ -142,7 +142,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
             if "#" in str(row[codeheaders[0]]):
                 continue
             code = str(row[codeheaders[0]])
-            if code in ["None", "", " "] or code.lower() == "not reported":
+            if code in ["None", "", " ", "-"] or code.lower() == "not reported":
                 continue
             name = row[nameheaders[0]]
             if isna(name):
