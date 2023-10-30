@@ -4,22 +4,6 @@ resource_name:
   all: "global_pcodes.csv"
   adm_12: "global_pcodes_adm_1_2.csv"
 
-headers:
-  country: "Location"
-  level: "Admin Level"
-  p-code: "P-Code"
-  name: "Name"
-  parent: "Parent P-Code"
-  date: "Valid from date"
-
-headers_hxl:
-  country: "#country+code"
-  level: "#geo+admin_level"
-  p-code: "#adm+code"
-  name: "#adm+name"
-  parent: "#adm+code+parent"
-  date: "#date+start"
-
 resource_exceptions:
   UKR: "UKR_AdminBoundaries_TabularData.xlsx"
 

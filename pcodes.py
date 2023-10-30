@@ -10,11 +10,11 @@ from hdx.data.dataset import Dataset
 logger = logging.getLogger(__name__)
 
 
-def get_global_pcodes(dataset, dataset_info, retriever):
-    resource = [r for r in dataset.get_resources() if r["name"] == dataset_info["resource_name"]["all"]]
+def get_global_pcodes(dataset, resource_name, retriever):
+    resource = [r for r in dataset.get_resources() if r["name"] == resource_name]
+    data_headers = ["Location", "Admin Level", "P-Code", "Name", "Parent P-Code", "Valid from date"]
+    hxl_headers = ["#country+code", "#geo+admin_level", "#adm+code", "#adm+name", "#adm+code+parent", "#date+start"]
 
-    data_headers = [val for val in dataset_info["headers"].values()]
-    hxl_headers = [val for val in dataset_info["headers_hxl"].values()]
     headers, iterator = retriever.get_tabular_rows(resource[0]["url"], dict_form=True)
 
     pcodes = list()
@@ -67,7 +67,7 @@ def get_data(resource, retriever, country):
     return data_subset
 
 
-def get_pcodes_from_gazetteer(data, pcode_headers, non_latin_langs, country, dataset):
+def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
     pcodes = list()
     dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
@@ -165,12 +165,12 @@ def get_pcodes_from_gazetteer(data, pcode_headers, non_latin_langs, country, dat
             if len(parentheaders) == 1:
                 row_parent = row[parentheaders[0]]
             pcode = {
-                pcode_headers["country"]: country,
-                pcode_headers["level"]: level,
-                pcode_headers["p-code"]: code,
-                pcode_headers["name"]: name,
-                pcode_headers["parent"]: row_parent,
-                pcode_headers["date"]: row_date,
+                "Location": country,
+                "Admin Level": level,
+                "P-Code": code,
+                "Name": name,
+                "Parent P-Code": row_parent,
+                "Valid from date": row_date,
             }
             if pcode not in pcodes:
                 pcodes.append(pcode)
@@ -193,7 +193,6 @@ def get_pcodes(retriever, country, configuration):
 
     pcodes = get_pcodes_from_gazetteer(
         open_gazetteer,
-        configuration["headers"],
         configuration["non_latin_alphabets"],
         country,
         dataset,

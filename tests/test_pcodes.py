@@ -67,7 +67,11 @@ class TestPCodes:
                     downloader, folder, input_folder, folder, False, True
                 )
                 global_dataset = Dataset.load_from_json(join(input_folder, "dataset-global-pcodes.json"))
-                global_test_pcodes = get_global_pcodes(global_dataset, configuration, retriever)
+                global_test_pcodes = get_global_pcodes(
+                    global_dataset,
+                    configuration["resource_name"]["all"],
+                    retriever,
+                )
                 assert global_test_pcodes == global_pcodes
 
                 pcodes = get_pcodes(retriever, "AFG", configuration)

@@ -47,7 +47,11 @@ def main(
             )
 
             global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
-            global_pcodes = get_global_pcodes(global_dataset, configuration, retriever)
+            global_pcodes = get_global_pcodes(
+                global_dataset,
+                configuration["resource_name"]["all"],
+                retriever,
+            )
 
             for country in countries:
                 pcodes = get_pcodes(retriever, country, configuration)
