@@ -66,9 +66,9 @@ def main(
             global_pcodes = [global_pcodes[0]] + sorted(
                 global_pcodes[1:],
                 key=lambda k: (
-                    k[configuration["headers"]["country"]],
-                    k[configuration["headers"]["level"]],
-                    k[configuration["headers"]["p-code"]],
+                    k["Location"],
+                    k["Admin Level"],
+                    k["P-Code"],
                 ),
             )
 
