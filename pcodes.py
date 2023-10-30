@@ -198,3 +198,44 @@ def get_pcodes(retriever, country, configuration):
         dataset,
     )
     return pcodes
+
+
+def get_pcode_lengths(global_pcodes):
+    pcode_lengths = {}
+    for row in global_pcodes:
+        country = row["Location"]
+        if "#" in country:
+            continue
+        if country not in pcode_lengths:
+            country_code = row["P-Code"][:3]
+            country_code = re.match("[a-z]*", country_code, re.IGNORECASE).group()
+            country_length = str(len(country_code))
+            pcode_lengths[country] = {"Location": row["Location"], "Country Length": country_length}
+
+        field = f"Admin {row['Admin Level']} Length"
+        stored_lengths = pcode_lengths[country].get(field)
+        new_length = str(len(row["P-Code"]))
+        if not stored_lengths:
+            pcode_lengths[country][field] = new_length
+            continue
+        stored_lengths = stored_lengths.split("|")
+        if new_length in stored_lengths:
+            continue
+        stored_lengths.append(new_length)
+        all_lengths = "|".join(stored_lengths)
+        pcode_lengths[country][field] = all_lengths
+
+    pcode_length_list = [
+        {
+            "Location": "#country+code",
+            "Country Length": "#country+len",
+            "Admin 1 Length": "#adm1+len",
+            "Admin 2 Length": "#adm2+len",
+            "Admin 3 Length": "#adm3+len",
+            "Admin 4 Length": "#adm4+len",
+        }
+    ]
+    for country in pcode_lengths:
+        pcode_length_list.append(pcode_lengths[country])
+
+    return pcode_length_list

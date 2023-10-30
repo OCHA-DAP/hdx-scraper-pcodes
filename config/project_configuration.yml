@@ -3,6 +3,7 @@ dataset_name: "global-pcodes"
 resource_name:
   all: "global_pcodes.csv"
   adm_12: "global_pcodes_adm_1_2.csv"
+  lengths: "global_pcode_lengths.csv"
 
 resource_exceptions:
   UKR: "UKR_AdminBoundaries_TabularData.xlsx"
