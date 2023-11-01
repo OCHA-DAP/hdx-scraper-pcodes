@@ -229,9 +229,9 @@ def get_pcode_lengths(global_pcodes):
 
         field = f"Admin {row['Admin Level']} Length"
         if row["Admin Level"] == "1":
-            field_length = str(len(row["P-Code"]) - country_length)
+            field_length = str(len(str(row["P-Code"])) - country_length)
         else:
-            field_length = str(len(row["P-Code"]) - len(row["Parent P-Code"]))
+            field_length = str(len(str(row["P-Code"])) - len(row["Parent P-Code"]))
         stored_lengths = pcode_lengths[country][field]
 
         if not stored_lengths:
