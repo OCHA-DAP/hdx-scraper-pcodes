@@ -110,9 +110,9 @@ if __name__ == "__main__":
         countries = countries.split(",")
     facade(
         main,
-        user_agent_config_yaml=join(expanduser("~"), ".useragents.yml"),
+        user_agent_config_yaml=join(expanduser("~"), ".useragents.yaml"),
         user_agent_lookup=lookup,
-        project_config_yaml=join("config", "project_configuration.yml"),
+        project_config_yaml=join("config", "project_configuration.yaml"),
         countries=countries,
         save=args.save,
         use_saved=args.use_saved,

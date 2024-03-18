@@ -18,7 +18,7 @@ class TestPCodes:
         Configuration._create(
             hdx_read_only=True,
             hdx_site="prod",
-            project_config_yaml=join("config", "project_configuration.yml"),
+            project_config_yaml=join("config", "project_configuration.yaml"),
         )
         return Configuration.read()
 
