@@ -182,6 +182,9 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
 def get_pcodes(retriever, country, configuration):
     pcodes = list()
     dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
+    if not dataset.get("cod_level"):
+        return pcodes
+
     if not dataset:
         logger.warning(f"{country}: Could not find boundary dataset")
         return pcodes
