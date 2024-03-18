@@ -149,6 +149,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
             if isna(name):
                 continue
             name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
+            name = name.strip()
             if name.islower() or name.isupper():
                 name = name.title()
             row_date = ""
