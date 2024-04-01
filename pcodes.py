@@ -228,6 +228,7 @@ def get_pcode_lengths(global_pcodes):
                 "Admin 2 Length": None,
                 "Admin 3 Length": None,
                 "Admin 4 Length": None,
+                "Admin 5 Length": None,
             }
         else:
             country_length = int(pcode_lengths[country]["Country Length"])
@@ -257,6 +258,7 @@ def get_pcode_lengths(global_pcodes):
             "Admin 2 Length": "#adm2+len",
             "Admin 3 Length": "#adm3+len",
             "Admin 4 Length": "#adm4+len",
+            "Admin 5 Length": "#adm5+len",
         }
     ]
     for country in pcode_lengths:
