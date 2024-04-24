@@ -217,7 +217,7 @@ def check_parents(pcodes):
     parent_pcodes = set([pcode["Parent P-Code"] for pcode in pcodes if int(pcode["Admin Level"]) > 1])
     for pcode in parent_pcodes:
         if pcode not in all_pcodes:
-            missing_units.append(pcode)
+            missing_units.append(str(pcode))
     return missing_units
 
 
