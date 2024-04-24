@@ -24,3 +24,13 @@ non_latin_alphabets:
   - "th"
   - "ua"
   - "vi"
+
+missing_units:
+  SSD:
+    Abyei:
+      Location: "SSD"
+      Admin Level: "1"
+      P-Code: "SS00"
+      Name: "Abyei Region"
+      Parent P-Code: "SSD"
+      Valid from date: "2023-08-29"

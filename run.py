@@ -11,7 +11,7 @@ from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.dictandlist import write_list_to_csv
 
-from pcodes import get_global_pcodes, get_pcodes, get_pcode_lengths
+from pcodes import check_parents, get_global_pcodes, get_pcodes, get_pcode_lengths
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,10 @@ def main(
 
                 if len(pcodes) == 0:
                     continue
+
+                missing_parents = check_parents(pcodes)
+                if len(missing_parents) > 0:
+                    logger.error(f"{country}: parent units {', '.join(missing_parents)} missing")
 
                 global_pcodes = [g for g in global_pcodes if g["Location"] != country]
                 for pcode in pcodes:

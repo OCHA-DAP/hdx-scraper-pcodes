@@ -203,7 +203,22 @@ def get_pcodes(retriever, country, configuration):
         country,
         dataset,
     )
+
+    missing_units = configuration["missing_units"].get(country)
+    if missing_units:
+        for unit in missing_units:
+            pcodes.append(dict(missing_units[unit]))
     return pcodes
+
+
+def check_parents(pcodes):
+    missing_units = []
+    all_pcodes = [pcode["P-Code"] for pcode in pcodes]
+    parent_pcodes = set([pcode["Parent P-Code"] for pcode in pcodes if int(pcode["Admin Level"]) > 1])
+    for pcode in parent_pcodes:
+        if pcode not in all_pcodes:
+            missing_units.append(pcode)
+    return missing_units
 
 
 def get_pcode_lengths(global_pcodes):
