@@ -6,7 +6,7 @@ from unicodedata import normalize
 from xlrd import xldate_as_datetime
 
 from hdx.location.country import Country
-from hdx.data.dataset import Dataset
+from hdx.data.dataset import Dataset, HDXError
 
 logger = logging.getLogger(__name__)
 
@@ -182,7 +182,11 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
 
 def get_pcodes(retriever, country, configuration):
     pcodes = list()
-    dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
+    try:
+        dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
+    except HDXError:
+        logger.warning(f"{country}: Could not find boundary dataset")
+        return pcodes
 
     if not dataset:
         logger.warning(f"{country}: Could not find boundary dataset")
