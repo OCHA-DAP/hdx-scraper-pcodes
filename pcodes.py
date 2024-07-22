@@ -147,7 +147,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
                 continue
             name = row[nameheaders[0]]
             if isna(name):
-                errors.add(f"{country}: name not found for p-code {code}")
+                errors.add(f"{country}: name not found for some p-codes")
             if name:
                 name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
                 name = name.strip()
