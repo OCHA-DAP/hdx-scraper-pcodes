@@ -29,14 +29,14 @@ def get_global_pcodes(dataset, resource_name, retriever):
     return pcodes
 
 
-def find_gazetteer(dataset, country, exceptions):
+def find_gazetteer(dataset, country, exceptions, errors):
     if country in exceptions:
         resources = [r for r in dataset.get_resources() if r["name"] == exceptions[country]]
     else:
         resources = [r for r in dataset.get_resources() if r.get_file_type() in ["xlsx", "xls"]]
 
     if len(resources) == 0:
-        logger.error(f"{country}: Could not find gazetteer in {dataset['name']}")
+        errors.add(f"{country}: Could not find gazetteer in {dataset['name']}")
         return None
 
     if len(resources) > 1:
@@ -45,30 +45,30 @@ def find_gazetteer(dataset, country, exceptions):
                      bool(re.match(".*adm.*tabular.?data.*", r["name"], re.IGNORECASE))]
 
     if len(resources) == 0:
-        logger.error(f"{country}: Could not find gazetteer in {dataset['name']}")
+        errors.add(f"{country}: Could not find gazetteer in {dataset['name']}")
         return None
 
     return resources[0]
 
 
-def get_data(resource, retriever, country):
+def get_data(resource, retriever, country, errors):
     filepath = retriever.download_file(resource["url"])
     try:
         data = read_excel(filepath, sheet_name=None)
     except:
-        logger.error(f"{country}: Could not read {resource['name']}")
+        errors.add(f"{country}: Could not read {resource['name']}")
         return dict()
     sheetnames = [s for s in data if bool(re.match(".*adm(in)?.?[1-7].*", s, re.IGNORECASE))]
 
     if len(sheetnames) == 0:
-        logger.error(f"{country}: Could not find correct tab in {resource['name']}")
+        errors.add(f"{country}: Could not find correct tab in {resource['name']}")
         return dict()
 
     data_subset = {key: data[key] for key in data if key in sheetnames}
     return data_subset
 
 
-def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
+def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
     pcodes = list()
     dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
@@ -102,7 +102,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
         if len(codeheaders) == 0:
             codeheaders = [h for h in df.columns if bool(re.match(".*pcode?", h, re.IGNORECASE))]
             if len(codeheaders) != 1:
-                logger.error(f"{country}: Can't find code header at adm{level}")
+                errors.add(f"{country}: Can't find code header at adm{level}")
                 continue
 
         if len(codeheaders) > 1:
@@ -114,7 +114,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
                 codeheaders = [codeheaders[0]]
 
         if len(nameheaders) == 0:
-            logger.error(f"{country}: Can't find name header at adm{level}")
+            errors.add(f"{country}: Can't find name header at adm{level}")
             continue
 
         if len(nameheaders) > 1:
@@ -130,7 +130,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
                     nameheaders = [nameheaders[0]]
 
         if len(parentheaders) == 0 and int(level) > 1:
-            logger.warning(f"{country}: Can't find parent code header at adm{level}")
+            errors.add(f"{country}: Can't find parent code header at adm{level}")
 
         if len(parentheaders) > 1 and int(level) > 1:
             logger.warning(f"{country}: Found multiple parent code columns at adm{level}, using first")
@@ -147,11 +147,12 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
                 continue
             name = row[nameheaders[0]]
             if isna(name):
-                continue
-            name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
-            name = name.strip()
-            if name.islower() or name.isupper():
-                name = name.title()
+                errors.add(f"{country}: name not found for p-code {code}")
+            if name:
+                name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
+                name = name.strip()
+                if name.islower() or name.isupper():
+                    name = name.title()
             row_date = ""
             if len(dateheaders) == 1:
                 row_date = row[dateheaders[0]]
@@ -180,7 +181,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset):
     return pcodes
 
 
-def get_pcodes(retriever, country, configuration):
+def get_pcodes(retriever, country, configuration, errors):
     pcodes = list()
     try:
         dataset = Dataset.read_from_hdx(f"cod-ab-{country.lower()}")
@@ -195,17 +196,18 @@ def get_pcodes(retriever, country, configuration):
     if not dataset.get("cod_level"):
         return pcodes
 
-    gazetteer = find_gazetteer(dataset, country, configuration["resource_exceptions"])
+    gazetteer = find_gazetteer(dataset, country, configuration["resource_exceptions"], errors)
     if not gazetteer:
         return pcodes
 
-    open_gazetteer = get_data(gazetteer, retriever, country)
+    open_gazetteer = get_data(gazetteer, retriever, country, errors)
 
     pcodes = get_pcodes_from_gazetteer(
         open_gazetteer,
         configuration["non_latin_alphabets"],
         country,
         dataset,
+        errors
     )
 
     missing_units = configuration["missing_units"].get(country)

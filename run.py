@@ -10,6 +10,7 @@ from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.dictandlist import write_list_to_csv
+from hdx.utilities.errors_onexit import ErrorsOnExit
 
 from pcodes import check_parents, get_global_pcodes, get_pcodes, get_pcode_lengths
 
@@ -40,71 +41,75 @@ def main(
     if not countries:
         countries = [key for key in Country.countriesdata()["countries"]]
 
-    with temp_dir() as temp_folder:
-        with Download(rate_limit={"calls": 1, "period": 0.1}) as downloader:
-            retriever = Retrieve(
-                downloader, temp_folder, "saved_data", temp_folder, save, use_saved
-            )
+    with ErrorsOnExit() as errors_on_exit:
+        with temp_dir() as temp_folder:
+            with Download(rate_limit={"calls": 1, "period": 0.1}) as downloader:
+                retriever = Retrieve(
+                    downloader, temp_folder, "saved_data", temp_folder, save, use_saved
+                )
 
-            global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
-            global_pcodes = get_global_pcodes(
-                global_dataset,
-                configuration["resource_name"]["all"],
-                retriever,
-            )
+                global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
+                global_pcodes = get_global_pcodes(
+                    global_dataset,
+                    configuration["resource_name"]["all"],
+                    retriever,
+                )
 
-            for country in countries:
-                pcodes = get_pcodes(retriever, country, configuration)
+                for country in countries:
+                    pcodes = get_pcodes(retriever, country, configuration, errors_on_exit)
 
-                if len(pcodes) == 0:
-                    continue
+                    if len(pcodes) == 0:
+                        continue
 
-                missing_parents = check_parents(pcodes)
-                if len(missing_parents) > 0:
-                    logger.error(f"{country}: parent units {', '.join(missing_parents)} missing")
+                    missing_parents = check_parents(pcodes)
+                    if len(missing_parents) > 0:
+                        logger.error(f"{country}: parent units {', '.join(missing_parents)} missing")
 
-                global_pcodes = [g for g in global_pcodes if g["Location"] != country]
-                for pcode in pcodes:
-                    global_pcodes.append(pcode)
+                    global_pcodes = [g for g in global_pcodes if g["Location"] != country]
+                    for pcode in pcodes:
+                        global_pcodes.append(pcode)
 
-            global_pcodes = [global_pcodes[0]] + sorted(
-                global_pcodes[1:],
-                key=lambda k: (
-                    k["Location"],
-                    k["Admin Level"],
-                    k["P-Code"],
-                ),
-            )
+                global_pcodes = [global_pcodes[0]] + sorted(
+                    global_pcodes[1:],
+                    key=lambda k: (
+                        k["Location"],
+                        k["Admin Level"],
+                        k["P-Code"],
+                    ),
+                )
 
-            pcode_lengths = get_pcode_lengths(global_pcodes)
+                pcode_lengths = get_pcode_lengths(global_pcodes)
 
-            adm12_pcodes = [global_pcodes[0]] + [
-                g for g in global_pcodes if g["Admin Level"] in ["1", "2"]
-            ]
+                adm12_pcodes = [global_pcodes[0]] + [
+                    g for g in global_pcodes if g["Admin Level"] in ["1", "2"]
+                ]
 
-            temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
-            temp_file_12 = join(temp_folder, configuration["resource_name"]["adm_12"])
-            temp_file_lengths = join(temp_folder, configuration["resource_name"]["lengths"])
-            write_list_to_csv(temp_file_all, rows=global_pcodes)
-            write_list_to_csv(temp_file_12, rows=adm12_pcodes)
-            write_list_to_csv(temp_file_lengths, rows=pcode_lengths)
+                temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
+                temp_file_12 = join(temp_folder, configuration["resource_name"]["adm_12"])
+                temp_file_lengths = join(temp_folder, configuration["resource_name"]["lengths"])
+                write_list_to_csv(temp_file_all, rows=global_pcodes)
+                write_list_to_csv(temp_file_12, rows=adm12_pcodes)
+                write_list_to_csv(temp_file_lengths, rows=pcode_lengths)
 
-            for resource in global_dataset.get_resources():
-                if resource["name"] == configuration["resource_name"]["all"]:
-                    resource.set_file_to_upload(temp_file_all)
-                if resource["name"] == configuration["resource_name"]["adm_12"]:
-                    resource.set_file_to_upload(temp_file_12)
-                if resource["name"] == configuration["resource_name"]["lengths"]:
-                    resource.set_file_to_upload(temp_file_lengths)
+                for resource in global_dataset.get_resources():
+                    if resource["name"] == configuration["resource_name"]["all"]:
+                        resource.set_file_to_upload(temp_file_all)
+                    if resource["name"] == configuration["resource_name"]["adm_12"]:
+                        resource.set_file_to_upload(temp_file_12)
+                    if resource["name"] == configuration["resource_name"]["lengths"]:
+                        resource.set_file_to_upload(temp_file_lengths)
 
-            min_date = min([entry["Valid from date"] for entry in global_pcodes[1:]])
-            global_dataset.set_reference_period(startdate=min_date, ongoing=True)
-            global_dataset.update_in_hdx(
-                hxl_update=False,
-                updated_by_script="HDX Scraper: Global P-codes",
-            )
+                min_date = min([entry["Valid from date"] for entry in global_pcodes[1:]])
+                global_dataset.set_reference_period(startdate=min_date, ongoing=True)
+                global_dataset.update_in_hdx(
+                    hxl_update=False,
+                    updated_by_script="HDX Scraper: Global P-codes",
+                )
 
-        logger.info("Finished processing")
+            if len(errors_on_exit.errors) > 0:
+                with open("errors.txt", "w") as fp:
+                    fp.write("\n".join(errors_on_exit.errors))
+            logger.info("Finished processing")
 
 
 if __name__ == "__main__":
