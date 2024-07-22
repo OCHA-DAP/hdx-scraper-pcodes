@@ -7,10 +7,10 @@ from hdx.data.dataset import Dataset
 from hdx.facades.keyword_arguments import facade
 from hdx.location.country import Country
 from hdx.utilities.downloader import Download
-from hdx.utilities.path import temp_dir
-from hdx.utilities.retriever import Retrieve
 from hdx.utilities.dictandlist import write_list_to_csv
 from hdx.utilities.errors_onexit import ErrorsOnExit
+from hdx.utilities.path import temp_dir
+from hdx.utilities.retriever import Retrieve
 
 from pcodes import check_parents, get_global_pcodes, get_pcodes, get_pcode_lengths
 
@@ -100,7 +100,7 @@ def main(
                         resource.set_file_to_upload(temp_file_lengths)
 
                 min_date = min([entry["Valid from date"] for entry in global_pcodes[1:]])
-                global_dataset.set_reference_period(startdate=min_date, ongoing=True)
+                global_dataset.set_time_period(startdate=min_date, ongoing=True)
                 global_dataset.update_in_hdx(
                     hxl_update=False,
                     updated_by_script="HDX Scraper: Global P-codes",

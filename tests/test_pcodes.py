@@ -82,20 +82,20 @@ class TestPCodes:
                 test_pcode_lengths = get_pcode_lengths(global_pcodes)
                 assert test_pcode_lengths == pcode_lengths
 
-                pcodes = get_pcodes(retriever, "AFG", configuration)
+                pcodes = get_pcodes(retriever, "AFG", configuration, set())
                 assert pcodes == afg_pcodes
 
-                pcodes = get_pcodes(retriever, "ARM", configuration)
+                pcodes = get_pcodes(retriever, "ARM", configuration, set())
                 assert pcodes == arm_pcodes
 
-                pcodes = get_pcodes(retriever, "IDN", configuration)
+                pcodes = get_pcodes(retriever, "IDN", configuration, set())
                 assert pcodes == idn_pcodes
 
-                pcodes = get_pcodes(retriever, "MMR", configuration)
+                pcodes = get_pcodes(retriever, "MMR", configuration, set())
                 assert pcodes == list()
 
-                pcodes = get_pcodes(retriever, "BES", configuration)
+                pcodes = get_pcodes(retriever, "BES", configuration, set())
                 assert pcodes == list()
 
-                pcodes = get_pcodes(retriever, "MKD", configuration)
+                pcodes = get_pcodes(retriever, "MKD", configuration, set())
                 assert pcodes == list()
