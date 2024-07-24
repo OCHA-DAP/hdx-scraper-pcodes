@@ -63,7 +63,7 @@ def main(
 
                     missing_parents = check_parents(pcodes)
                     if len(missing_parents) > 0:
-                        logger.error(f"{country}: parent units {', '.join(missing_parents)} missing")
+                        errors_on_exit.add(f"{country}: parent units {', '.join(missing_parents)} missing")
 
                     global_pcodes = [g for g in global_pcodes if g["Location"] != country]
                     for pcode in pcodes:
@@ -107,8 +107,10 @@ def main(
                 )
 
             if len(errors_on_exit.errors) > 0:
+                errors = list(set(errors_on_exit.errors))
+                errors.sort()
                 with open("errors.txt", "w") as fp:
-                    fp.write("\n".join(errors_on_exit.errors))
+                    fp.writelines(_ + "  \n" for _ in errors)
             logger.info("Finished processing")
 
 
