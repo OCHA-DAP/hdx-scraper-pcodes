@@ -61,7 +61,7 @@ def get_data(resource, retriever, country, errors):
     sheetnames = [s for s in data if bool(re.match(".*adm(in)?.?[1-7].*", s, re.IGNORECASE))]
 
     if len(sheetnames) == 0:
-        errors.add(f"{country}: Could not find correct tab in {resource['name']}")
+        errors.add(f"{country}: Could not find admin tabs in {resource['name']}")
         return dict()
 
     data_subset = {key: data[key] for key in data if key in sheetnames}
@@ -146,8 +146,9 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
             if code in ["None", "", " ", "-"] or code.lower() == "not reported":
                 continue
             name = row[nameheaders[0]]
-            if isna(name):
-                errors.add(f"{country}: name not found for some p-codes")
+            if isna(name) or name == " ":
+                errors.add(f"{country}: name not found for some p-codes at adm{level}")
+                name = None
             if name:
                 name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
                 name = name.strip()
