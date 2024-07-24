@@ -5,8 +5,7 @@ resource_name:
   adm_12: "global_pcodes_adm_1_2.csv"
   lengths: "global_pcode_lengths.csv"
 
-resource_exceptions:
-  UKR: "UKR_AdminBoundaries_TabularData.xlsx"
+resource_exceptions: {}
 
 non_latin_alphabets:
   - "ar"

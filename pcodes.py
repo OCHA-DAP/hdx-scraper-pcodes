@@ -73,6 +73,8 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
     dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
     for sheetname in data:
+        if country == "BMU" and sheetname == "_Admin 2":
+            continue
         level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
         if not level:
             logger.warning(f"{country}: Could not determine admin level for {sheetname}")
@@ -90,6 +92,8 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
         ]
         if country == "CMR":
             nameheaders = [f"ADM{level}_FR"]
+        if country == "EGY" and level == "3":
+            nameheaders = ["ADM3_AR"]
         parentlevel = int(level) - 1
         if country == "ARM" and level == "3":
             parentlevel = 1
@@ -149,7 +153,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
             if isna(name) or name == " ":
                 errors.add(f"{country}: name not found for some p-codes at adm{level}")
                 name = None
-            if name:
+            if name and not (country == "EGY" and level == "3"):
                 name = normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
                 name = name.strip()
                 if name.islower() or name.isupper():
@@ -167,7 +171,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
 
             row_parent = country
             if len(parentheaders) == 1:
-                row_parent = row[parentheaders[0]]
+                row_parent = str(row[parentheaders[0]])
             pcode = {
                 "Location": country,
                 "Admin Level": level,
