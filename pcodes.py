@@ -86,7 +86,7 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
                        "unhcr" not in h.lower()]
         nameheaders = [
             h for h in df.columns if
-            (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h, re.IGNORECASE)) or
+            (bool(re.match("adm(in)?" + level + "(name)?_?([a-z]{2}$|name$)", h.strip(), re.IGNORECASE)) or
              bool(re.match(f"name_?{level}", h, re.IGNORECASE))) and not
             bool(re.search("alt", h, re.IGNORECASE))
         ]
