@@ -7,7 +7,8 @@ BHS: Can't find code header at adm1
 BLM: Could not find gazetteer in cod-ab-blm  
 GRC: Can't find code header at adm1  
 GRC: Can't find code header at adm2  
-JAM: name not found for some p-codes at adm2  
+JAM: Can't find name header at adm1  
+JAM: parent units JM10, JM14, JM02, JM03, JM07, JM08, JM06, JM05, JM01, JM11, JM13, JM04, JM09, JM12 missing  
 KGZ: name not found for some p-codes at adm3  
 MAF: Could not find gazetteer in cod-ab-maf  
 MKD: Can't find code header at adm3  
@@ -16,4 +17,4 @@ MMR: name not found for some p-codes at adm4
 SEN: name not found for some p-codes at adm3  
 TUR: name not found for some p-codes at adm3  
 TUR: parent units TUR021013007, TUR008005021, nan missing  
-UKR: parent units UA0102023, UA0102007, UA0102021, UA0102031, UA0102043, UA0102001 missing  
+UKR: parent units UA0102021, UA0102043, UA0102023, UA0102007, UA0102001, UA0102031 missing  
