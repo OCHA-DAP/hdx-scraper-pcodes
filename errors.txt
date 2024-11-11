@@ -14,5 +14,5 @@ MKD: Can't find code header at adm4
 MMR: name not found for some p-codes at adm4  
 SEN: name not found for some p-codes at adm3  
 TUR: name not found for some p-codes at adm3  
-TUR: parent units nan, TUR021013007, TUR008005021 missing  
-UKR: parent units UA0102023, UA0102007, UA0102031, UA0102001, UA0102043, UA0102021 missing  
+TUR: parent units nan, TUR008005021, TUR021013007 missing  
+UKR: parent units UA0102021, UA0102023, UA0102043, UA0102007, UA0102001, UA0102031 missing  
