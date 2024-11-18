@@ -8,11 +8,12 @@ BLM: Could not find gazetteer in cod-ab-blm
 GRC: Can't find code header at adm1  
 GRC: Can't find code header at adm2  
 KGZ: name not found for some p-codes at adm3  
+LBN: parent units Conflict missing  
 MAF: Could not find gazetteer in cod-ab-maf  
 MKD: Can't find code header at adm3  
 MKD: Can't find code header at adm4  
 MMR: name not found for some p-codes at adm4  
 SEN: name not found for some p-codes at adm3  
 TUR: name not found for some p-codes at adm3  
-TUR: parent units nan, TUR008005021, TUR021013007 missing  
-UKR: parent units UA0102021, UA0102023, UA0102043, UA0102007, UA0102001, UA0102031 missing  
+TUR: parent units TUR021013007, nan, TUR008005021 missing  
+UKR: parent units UA0102007, UA0102043, UA0102031, UA0102023, UA0102021, UA0102001 missing  
