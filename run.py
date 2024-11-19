@@ -110,7 +110,7 @@ def main(
                 errors = list(set(errors_on_exit.errors))
                 errors.sort()
                 with open("errors.txt", "w") as fp:
-                    fp.writelines(_ + "  \n" for _ in errors)
+                    fp.writelines(_ + " | " for _ in errors)
             logger.info("Finished processing")
 
 
