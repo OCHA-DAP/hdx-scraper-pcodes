@@ -78,6 +78,8 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
         skip_level = False
         if country == "BMU" and sheetname == "_Admin 2":
             continue
+        if country == "MSR" and "_pop" in sheetname:
+            continue
         level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
         if not level:
             logger.warning(f"{country}: Could not determine admin level for {sheetname}")
