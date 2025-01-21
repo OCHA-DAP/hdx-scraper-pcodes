@@ -73,6 +73,9 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
     dataset_date = dataset.get_reference_period(date_format="%Y-%m-%d")["startdate_str"]
 
     for sheetname in data:
+        adm_pcodes = list()
+        adm_duplicate_check = list()
+        skip_level = False
         if country == "BMU" and sheetname == "_Admin 2":
             continue
         level = re.search("([^\d]\d[^\d])|([^\d]\d$)|(^\d[^\d])", sheetname)
@@ -149,6 +152,10 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
             code = str(row[codeheaders[0]])
             if code in ["None", "", " ", "-"] or code.lower() == "not reported":
                 continue
+            if code in adm_duplicate_check:
+                skip_level = True
+            else:
+                adm_duplicate_check.append(code)
             name = row[nameheaders[0]]
             if isna(name) or name == " ":
                 errors.add(f"{country}: name not found for some p-codes at adm{level}")
@@ -180,9 +187,13 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
                 "Parent P-Code": row_parent,
                 "Valid from date": row_date,
             }
-            if pcode not in pcodes:
-                pcodes.append(pcode)
+            if pcode not in adm_pcodes:
+                adm_pcodes.append(pcode)
 
+        if skip_level:
+            errors.add(f"{country}: Duplicate p-codes found at adm{level}")
+        else:
+            pcodes = pcodes + adm_pcodes
     return pcodes
 
 
