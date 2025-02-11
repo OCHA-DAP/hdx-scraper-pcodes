@@ -8,38 +8,60 @@ from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.useragent import UserAgent
-from pcodes import get_global_pcodes, get_pcodes, get_pcode_lengths
+
+from hdx.scraper.pcodes.pcodes import (
+    get_global_pcodes,
+    get_pcode_lengths,
+    get_pcodes,
+)
 
 
 class TestPCodes:
     @pytest.fixture(scope="function")
-    def configuration(self):
+    def configuration(self, config_dir):
         UserAgent.set_global("test")
         Configuration._create(
             hdx_read_only=True,
             hdx_site="prod",
-            project_config_yaml=join("config", "project_configuration.yaml"),
+            project_config_yaml=join(config_dir, "project_configuration.yaml"),
         )
         return Configuration.read()
 
-    @pytest.fixture(scope="class")
-    def Dataset(self):
-        class Dataset:
-            @staticmethod
-            def read_from_hdx(dataset_name):
-                if dataset_name == "cod-ab-mmr":
-                    return None
-                return Dataset.load_from_json(join("tests", "input", f"dataset-{dataset_name}.json"))
-
     @pytest.fixture(scope="function")
-    def fixtures(self):
+    def read_dataset(self, monkeypatch):
+        def read_from_hdx(dataset_name):
+            if dataset_name == "cod-ab-mmr":
+                return None
+            return Dataset.load_from_json(
+                join(
+                    "tests",
+                    "fixtures",
+                    "input",
+                    f"dataset-{dataset_name}.json",
+                )
+            )
+
+        monkeypatch.setattr(Dataset, "read_from_hdx", staticmethod(read_from_hdx))
+
+    @pytest.fixture(scope="class")
+    def fixtures_dir(self):
         return join("tests", "fixtures")
 
-    @pytest.fixture(scope="function")
-    def input_folder(self, fixtures):
-        return join(fixtures, "input")
+    @pytest.fixture(scope="class")
+    def input_dir(self, fixtures_dir):
+        return join(fixtures_dir, "input")
 
-    def test_pcodes(self, configuration, fixtures, input_folder):
+    @pytest.fixture(scope="class")
+    def config_dir(self, fixtures_dir):
+        return join("src", "hdx", "scraper", "pcodes", "config")
+
+    def test_pcodes(
+        self,
+        configuration,
+        read_dataset,
+        fixtures_dir,
+        input_dir,
+    ):
         afg_pcodes = read_list_from_csv(
             join("tests", "fixtures", "afg_pcodes.csv"),
             headers=1,
@@ -66,12 +88,23 @@ class TestPCodes:
             dict_form=True,
         )
 
-        with temp_dir() as folder:
+        with temp_dir(
+            "TestPcodes",
+            delete_on_success=True,
+            delete_on_failure=False,
+        ) as tempdir:
             with Download() as downloader:
                 retriever = Retrieve(
-                    downloader, folder, input_folder, folder, False, True
+                    downloader=downloader,
+                    fallback_dir=tempdir,
+                    saved_dir=input_dir,
+                    temp_dir=tempdir,
+                    save=False,
+                    use_saved=True,
                 )
-                global_dataset = Dataset.load_from_json(join(input_folder, "dataset-global-pcodes.json"))
+                global_dataset = Dataset.load_from_json(
+                    join(input_dir, "dataset-global-pcodes.json")
+                )
                 global_test_pcodes = get_global_pcodes(
                     global_dataset,
                     configuration["resource_name"]["all"],

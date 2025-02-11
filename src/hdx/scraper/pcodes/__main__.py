@@ -1,29 +1,57 @@
-import logging
+#!/usr/bin/python
+"""
+Top level script. Calls other functions that generate datasets that this
+script then creates in HDX.
+
+"""
+
 import argparse
-from os.path import expanduser, join
+import logging
+from os.path import dirname, expanduser, join
 
 from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
 from hdx.facades.keyword_arguments import facade
 from hdx.location.country import Country
-from hdx.utilities.downloader import Download
 from hdx.utilities.dictandlist import write_list_to_csv
+from hdx.utilities.downloader import Download
 from hdx.utilities.errors_onexit import ErrorsOnExit
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 
-from pcodes import check_parents, get_global_pcodes, get_pcodes, get_pcode_lengths
+from pcodes import (
+    check_parents,
+    get_global_pcodes,
+    get_pcode_lengths,
+    get_pcodes,
+)
 
 logger = logging.getLogger(__name__)
 
-lookup = "hdx-scraper-pcodes"
+_USER_AGENT_LOOKUP = "hdx-scraper-pcodes"
+_SAVED_DATA_DIR = "saved_data"  # Keep in repo to avoid deletion in /tmp
+_UPDATED_BY_SCRIPT = "HDX Scraper: Pcodes"
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-co", "--countries", default=None, help="Which countries to check")
-    parser.add_argument("-sv", "--save", default=False, action="store_true", help="Save downloaded data")
-    parser.add_argument("-usv", "--use_saved", default=False, action="store_true", help="Use saved data")
+    parser.add_argument(
+        "-co", "--countries", default=None, help="Which countries to check"
+    )
+    parser.add_argument(
+        "-sv",
+        "--save",
+        default=False,
+        action="store_true",
+        help="Save downloaded data",
+    )
+    parser.add_argument(
+        "-usv",
+        "--use_saved",
+        default=False,
+        action="store_true",
+        help="Use saved data",
+    )
     args = parser.parse_args()
     return args
 
@@ -34,18 +62,22 @@ def main(
     use_saved,
     **ignore,
 ):
-    configuration = Configuration.read()
-
     logger.info("##### Updating global p-codes #####")
 
+    configuration = Configuration.read()
     if not countries:
         countries = [key for key in Country.countriesdata()["countries"]]
 
     with ErrorsOnExit() as errors_on_exit:
-        with temp_dir() as temp_folder:
+        with temp_dir(_USER_AGENT_LOOKUP) as temp_folder:
             with Download(rate_limit={"calls": 1, "period": 0.1}) as downloader:
                 retriever = Retrieve(
-                    downloader, temp_folder, "saved_data", temp_folder, save, use_saved
+                    downloader,
+                    temp_folder,
+                    _SAVED_DATA_DIR,
+                    temp_folder,
+                    save,
+                    use_saved,
                 )
 
                 global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
@@ -63,7 +95,9 @@ def main(
 
                     missing_parents = check_parents(pcodes)
                     if len(missing_parents) > 0:
-                        errors_on_exit.add(f"{country}: parent units {', '.join(missing_parents)} missing")
+                        errors_on_exit.add(
+                            f"{country}: parent units {', '.join(missing_parents)} missing"
+                        )
 
                     global_pcodes = [g for g in global_pcodes if g["Location"] != country]
                     for pcode in pcodes:
@@ -86,7 +120,9 @@ def main(
 
                 temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
                 temp_file_12 = join(temp_folder, configuration["resource_name"]["adm_12"])
-                temp_file_lengths = join(temp_folder, configuration["resource_name"]["lengths"])
+                temp_file_lengths = join(
+                    temp_folder, configuration["resource_name"]["lengths"]
+                )
                 write_list_to_csv(temp_file_all, rows=global_pcodes)
                 write_list_to_csv(temp_file_12, rows=adm12_pcodes)
                 write_list_to_csv(temp_file_lengths, rows=pcode_lengths)
@@ -103,7 +139,7 @@ def main(
                 global_dataset.set_time_period(startdate=min_date, ongoing=True)
                 global_dataset.update_in_hdx(
                     hxl_update=False,
-                    updated_by_script="HDX Scraper: Global P-codes",
+                    updated_by_script=_UPDATED_BY_SCRIPT,
                 )
 
             if len(errors_on_exit.errors) > 0:
@@ -121,9 +157,12 @@ if __name__ == "__main__":
         countries = countries.split(",")
     facade(
         main,
+        hdx_site="dev",
         user_agent_config_yaml=join(expanduser("~"), ".useragents.yaml"),
-        user_agent_lookup=lookup,
-        project_config_yaml=join("config", "project_configuration.yaml"),
+        user_agent_lookup=_USER_AGENT_LOOKUP,
+        project_config_yaml=join(
+            dirname(__file__), "config", "project_configuration.yaml"
+        ),
         countries=countries,
         save=args.save,
         use_saved=args.use_saved,
