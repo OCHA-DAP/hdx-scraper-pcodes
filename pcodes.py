@@ -154,6 +154,8 @@ def get_pcodes_from_gazetteer(data, non_latin_langs, country, dataset, errors):
             code = str(row[codeheaders[0]])
             if code in ["None", "", " ", "-"] or code.lower() == "not reported":
                 continue
+            if country == "ECU" and code in ["ECISLA", "ECNO APLICA"]:
+                continue
             if code in adm_duplicate_check:
                 skip_level = True
             else:
