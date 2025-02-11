@@ -13,6 +13,7 @@ name = "hdx-scraper-pcodes"
 requires-python = ">=3.12"
 dependencies = [
   "hdx-python-api",
+  "hdx-python-country",
   "hdx-python-utilities",
   "pandas",
 ]

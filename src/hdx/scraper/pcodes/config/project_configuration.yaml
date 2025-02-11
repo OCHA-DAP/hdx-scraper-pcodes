@@ -1,9 +1,37 @@
 dataset_name: "global-pcodes"
+dataset_title: "Global P-Code List"
 
-resource_name:
-  all: "global_pcodes.csv"
-  adm_12: "global_pcodes_adm_1_2.csv"
-  lengths: "global_pcode_lengths.csv"
+resource_info_all:
+  name: "global_pcodes.csv"
+  description: "Table contains the 3-digit ISO code, admin level, p-code, administrative name, parent p-code, and date."
+
+resource_info_1_2:
+  name: "global_pcodes_adm_1_2.csv"
+  description: "Data for admin levels 1 and 2. Table contains the 3-digit ISO code, admin level, p-code, administrative name, parent p-code, and date."
+
+resource_info_lengths:
+  name: "global_pcode_lengths.csv"
+  description: "P-code lengths for all countries at all levels. Table contains the 2 or 3 digit ISO code present in the p-codes, and p-code lengths."
+
+hxl_tags:
+  Location: "#country+code"
+  Admin Level: "#geo+admin_level"
+  P-Code: "#adm+code"
+  Name: "#adm+name"
+  Parent P-Code: "#adm+code+parent"
+  Valid from date: "#date+start"
+
+hxl_tags_lengths:
+  Location: "#country+code"
+  Country Length: "#country+len"
+  Admin 1 Length: "#adm1+len"
+  Admin 2 Length: "#adm2+len"
+  Admin 3 Length: "#adm3+len"
+  Admin 4 Length: "#adm4+len"
+  Admin 5 Length: "#adm5+len"
+
+tags:
+  - "administrative boundaries-divisions"
 
 resource_exceptions: {}
 

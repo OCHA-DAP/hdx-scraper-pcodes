@@ -37,7 +37,9 @@ frictionless==5.18.0
 hdx-python-api==6.3.7
     # via hdx-scraper-pcodes (pyproject.toml)
 hdx-python-country==3.8.8
-    # via hdx-python-api
+    # via
+    #   hdx-scraper-pcodes (pyproject.toml)
+    #   hdx-python-api
 hdx-python-utilities==3.8.3
     # via
     #   hdx-scraper-pcodes (pyproject.toml)

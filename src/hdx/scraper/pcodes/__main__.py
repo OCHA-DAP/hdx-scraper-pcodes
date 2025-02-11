@@ -5,26 +5,18 @@ script then creates in HDX.
 
 """
 
-import argparse
 import logging
 from os.path import dirname, expanduser, join
 
 from hdx.api.configuration import Configuration
-from hdx.data.dataset import Dataset
-from hdx.facades.keyword_arguments import facade
+from hdx.api.utilities.hdx_error_handler import HDXErrorHandler
+from hdx.facades.infer_arguments import facade
 from hdx.location.country import Country
-from hdx.utilities.dictandlist import write_list_to_csv
 from hdx.utilities.downloader import Download
-from hdx.utilities.errors_onexit import ErrorsOnExit
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
 
-from pcodes import (
-    check_parents,
-    get_global_pcodes,
-    get_pcode_lengths,
-    get_pcodes,
-)
+from hdx.scraper.pcodes.pcodes import Pcodes
 
 logger = logging.getLogger(__name__)
 
@@ -33,128 +25,68 @@ _SAVED_DATA_DIR = "saved_data"  # Keep in repo to avoid deletion in /tmp
 _UPDATED_BY_SCRIPT = "HDX Scraper: Pcodes"
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-co", "--countries", default=None, help="Which countries to check"
-    )
-    parser.add_argument(
-        "-sv",
-        "--save",
-        default=False,
-        action="store_true",
-        help="Save downloaded data",
-    )
-    parser.add_argument(
-        "-usv",
-        "--use_saved",
-        default=False,
-        action="store_true",
-        help="Use saved data",
-    )
-    args = parser.parse_args()
-    return args
-
-
 def main(
-    countries,
-    save,
-    use_saved,
-    **ignore,
+    save: bool = True,
+    use_saved: bool = False,
+    err_to_hdx: bool = False,
 ):
+    """Generate dataset and create it in HDX
+
+    Args:
+        save (bool): Save downloaded data. Defaults to True.
+        use_saved (bool): Use saved data. Defaults to False.
+        err_to_hdx (bool): Whether to write any errors to HDX metadata. Defaults to False.
+
+    Returns:
+        None
+    """
     logger.info("##### Updating global p-codes #####")
 
-    configuration = Configuration.read()
-    if not countries:
-        countries = [key for key in Country.countriesdata()["countries"]]
-
-    with ErrorsOnExit() as errors_on_exit:
-        with temp_dir(_USER_AGENT_LOOKUP) as temp_folder:
-            with Download(rate_limit={"calls": 1, "period": 0.1}) as downloader:
+    with HDXErrorHandler(write_to_hdx=err_to_hdx) as error_handler:
+        with temp_dir(folder=_USER_AGENT_LOOKUP) as temp_folder:
+            with Download() as downloader:
+                configuration = Configuration.read()
                 retriever = Retrieve(
-                    downloader,
-                    temp_folder,
-                    _SAVED_DATA_DIR,
-                    temp_folder,
-                    save,
-                    use_saved,
+                    downloader=downloader,
+                    fallback_dir=temp_folder,
+                    saved_dir=_SAVED_DATA_DIR,
+                    temp_dir=temp_folder,
+                    save=save,
+                    use_saved=use_saved,
                 )
 
-                global_dataset = Dataset.read_from_hdx(configuration["dataset_name"])
-                global_pcodes = get_global_pcodes(
-                    global_dataset,
-                    configuration["resource_name"]["all"],
-                    retriever,
+                pcodes = Pcodes(
+                    configuration=configuration,
+                    retriever=retriever,
+                    temp_folder=temp_folder,
+                    error_handler=error_handler,
                 )
 
+                countries = [key for key in Country.countriesdata()["countries"]]
                 for country in countries:
-                    pcodes = get_pcodes(retriever, country, configuration, errors_on_exit)
+                    pcodes.get_pcodes(country)
+                    pcodes.check_parents(country)
+                    pcodes.get_pcode_lengths(country)
 
-                    if len(pcodes) == 0:
-                        continue
-
-                    missing_parents = check_parents(pcodes)
-                    if len(missing_parents) > 0:
-                        errors_on_exit.add(
-                            f"{country}: parent units {', '.join(missing_parents)} missing"
-                        )
-
-                    global_pcodes = [g for g in global_pcodes if g["Location"] != country]
-                    for pcode in pcodes:
-                        global_pcodes.append(pcode)
-
-                global_pcodes = [global_pcodes[0]] + sorted(
-                    global_pcodes[1:],
-                    key=lambda k: (
-                        k["Location"],
-                        k["Admin Level"],
-                        k["P-Code"],
-                    ),
+                dataset = pcodes.generate_dataset()
+                dataset.update_from_yaml(
+                    path=join(
+                        dirname(__file__),
+                        "config",
+                        "hdx_dataset_static.yaml",
+                    )
                 )
-
-                pcode_lengths = get_pcode_lengths(global_pcodes)
-
-                adm12_pcodes = [global_pcodes[0]] + [
-                    g for g in global_pcodes if g["Admin Level"] in ["1", "2"]
-                ]
-
-                temp_file_all = join(temp_folder, configuration["resource_name"]["all"])
-                temp_file_12 = join(temp_folder, configuration["resource_name"]["adm_12"])
-                temp_file_lengths = join(
-                    temp_folder, configuration["resource_name"]["lengths"]
-                )
-                write_list_to_csv(temp_file_all, rows=global_pcodes)
-                write_list_to_csv(temp_file_12, rows=adm12_pcodes)
-                write_list_to_csv(temp_file_lengths, rows=pcode_lengths)
-
-                for resource in global_dataset.get_resources():
-                    if resource["name"] == configuration["resource_name"]["all"]:
-                        resource.set_file_to_upload(temp_file_all)
-                    if resource["name"] == configuration["resource_name"]["adm_12"]:
-                        resource.set_file_to_upload(temp_file_12)
-                    if resource["name"] == configuration["resource_name"]["lengths"]:
-                        resource.set_file_to_upload(temp_file_lengths)
-
-                min_date = min([entry["Valid from date"] for entry in global_pcodes[1:]])
-                global_dataset.set_time_period(startdate=min_date, ongoing=True)
-                global_dataset.update_in_hdx(
+                dataset.create_in_hdx(
+                    remove_additional_resources=True,
+                    match_resource_order=False,
                     hxl_update=False,
                     updated_by_script=_UPDATED_BY_SCRIPT,
                 )
 
-            if len(errors_on_exit.errors) > 0:
-                errors = list(set(errors_on_exit.errors))
-                errors.sort()
-                with open("errors.txt", "w") as fp:
-                    fp.writelines(_ + " | " for _ in errors)
             logger.info("Finished processing")
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    countries = args.countries
-    if countries:
-        countries = countries.split(",")
     facade(
         main,
         hdx_site="dev",
@@ -163,7 +95,4 @@ if __name__ == "__main__":
         project_config_yaml=join(
             dirname(__file__), "config", "project_configuration.yaml"
         ),
-        countries=countries,
-        save=args.save,
-        use_saved=args.use_saved,
     )
