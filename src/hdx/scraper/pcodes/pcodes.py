@@ -37,7 +37,7 @@ class Pcodes:
         except HDXError:
             dataset = None
 
-        if not dataset or not dataset.get("cod_level"):
+        if not dataset or not dataset.get("cod_level") or dataset.get("archived"):
             self._error_handler.add_message(
                 "PCodes",
                 iso,

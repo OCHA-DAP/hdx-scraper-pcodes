@@ -9,8 +9,8 @@ maintainer: aa13de36-28c5-47a7-8d0b-6d7c754ba8c8
 owner_org:  hdx
 data_update_frequency: 7
 notes: >
-  CSV containing subnational p-codes, their corresponding administrative names, parent p-codes, and reference dates for the world (where available). These are constructed using the COD gazetteers or in the case those are not available, from the COD administrative boundaries.\n\n
+  CSV containing subnational p-codes, their corresponding administrative names, parent p-codes, and reference dates for the world (where available). These are constructed using the COD gazetteers.
 
-  English names are used where available, followed by names written in Latin alphabets.\n\n
+  English names are used where available, followed by names written in Latin alphabets.
 
   Note that Indonesia admin4 is not included for now, as that data is contained in a second, non-standard gazetteer.
