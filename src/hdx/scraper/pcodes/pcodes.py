@@ -100,15 +100,7 @@ class Pcodes:
 
     def open_gazetteer(self, resource: Resource, iso: str) -> Dict:
         filepath = self._retriever.download_file(resource["url"])
-        try:
-            data = read_excel(filepath, sheet_name=None)
-        except:
-            self._error_handler.add(
-                "Pcodes",
-                f"cod-ab-{iso.lower()}",
-                f"Could not open {resource['name']}",
-            )
-            return {}
+        data = read_excel(filepath, sheet_name=None)
         sheetnames = [
             s for s in data if bool(re.match(".*adm(in)?.?[1-7].*", s, re.IGNORECASE))
         ]
