@@ -289,9 +289,9 @@ class Pcodes:
                 row_date = ""
                 if len(dateheaders) == 1:
                     row_date = row[dateheaders[0]]
-                    if type(row_date) is Timestamp:
+                    if isinstance(row_date, Timestamp):
                         row_date = row_date.strftime("%Y-%m-%d")
-                    elif type(row_date) is int:
+                    elif isinstance(row_date, int):
                         row_date = xldate_as_datetime(row_date, 0)
                         row_date = row_date.strftime("%Y-%m-%d")
                 if len(dateheaders) == 0:
