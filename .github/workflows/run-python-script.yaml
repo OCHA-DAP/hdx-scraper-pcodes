@@ -12,41 +12,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.x
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: "3.x"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install .
     - name: Run script
       env:
-        HDX_SITE: ${{ secrets.HDX_SITE }}
+        HDX_SITE: ${{ vars.HDX_SITE }}
         HDX_KEY: ${{ secrets.HDX_BOT_SCRAPERS_API_TOKEN }}
-        PREPREFIX: ${{ secrets.PREPREFIX }}
-        USER_AGENT: ${{ secrets.USER_AGENT }}
+        PREPREFIX: ${{ secrets.HDX_PIPELINE_PREPREFIX }}
+        USER_AGENT: ${{ vars.USER_AGENT }}
+        EXTRA_PARAMS: ${{ vars.EXTRA_PARAMS }}
       run: |
-        python run.py
-    - name: Commit error log
-      if: always()
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        file_pattern: errors*.txt
-        commit_message: automatic - errors updated
-        push_options: '--force'
-        skip_dirty_check: false
+        python -m hdx.scraper.pcodes
     - name: Send mail
       if: failure()
-      uses: dawidd6/action-send-mail@v2
+      uses: dawidd6/action-send-mail@v3
       with:
-        server_address: ${{secrets.EMAIL_SERVER}}
-        server_port: ${{secrets.EMAIL_PORT}}
-        username: ${{secrets.EMAIL_USERNAME}}
-        password: ${{secrets.EMAIL_PASSWORD}}
+        server_address: ${{secrets.HDX_PIPELINE_EMAIL_SERVER}}
+        server_port: ${{secrets.HDX_PIPELINE_EMAIL_PORT}}
+        username: ${{secrets.HDX_PIPELINE_EMAIL_USERNAME}}
+        password: ${{secrets.HDX_PIPELINE_EMAIL_PASSWORD}}
         subject: "FAILED: ${{github.repository}} run job"
-        body: file://errors.txt
-        to: ${{secrets.EMAIL_LIST}}
-        from: ${{secrets.EMAIL_FROM}}
-        content_type: text/html
+        body: GitHub Actions run job for ${{github.repository}} failed!
+        to: ${{vars.HDX_PIPELINE_EMAIL_LIST}}
+        from: ${{secrets.HDX_PIPELINE_EMAIL_FROM}}
+
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1
