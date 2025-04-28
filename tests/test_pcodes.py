@@ -1,57 +1,15 @@
 from os.path import join
 
-import pytest
-from hdx.api.configuration import Configuration
 from hdx.api.utilities.hdx_error_handler import HDXErrorHandler
-from hdx.data.dataset import Dataset
 from hdx.utilities.compare import assert_files_same
 from hdx.utilities.downloader import Download
 from hdx.utilities.path import temp_dir
 from hdx.utilities.retriever import Retrieve
-from hdx.utilities.useragent import UserAgent
 
 from hdx.scraper.pcodes.pcodes import Pcodes
 
 
 class TestPCodes:
-    @pytest.fixture(scope="function")
-    def configuration(self, config_dir):
-        UserAgent.set_global("test")
-        Configuration._create(
-            hdx_read_only=True,
-            hdx_site="prod",
-            project_config_yaml=join(config_dir, "project_configuration.yaml"),
-        )
-        return Configuration.read()
-
-    @pytest.fixture(scope="function")
-    def read_dataset(self, monkeypatch):
-        def read_from_hdx(dataset_name):
-            if dataset_name == "cod-ab-mmr":
-                return None
-            return Dataset.load_from_json(
-                join(
-                    "tests",
-                    "fixtures",
-                    "input",
-                    f"dataset-{dataset_name}.json",
-                )
-            )
-
-        monkeypatch.setattr(Dataset, "read_from_hdx", staticmethod(read_from_hdx))
-
-    @pytest.fixture(scope="class")
-    def fixtures_dir(self):
-        return join("tests", "fixtures")
-
-    @pytest.fixture(scope="class")
-    def input_dir(self, fixtures_dir):
-        return join(fixtures_dir, "input")
-
-    @pytest.fixture(scope="class")
-    def config_dir(self, fixtures_dir):
-        return join("src", "hdx", "scraper", "pcodes", "config")
-
     def test_pcodes(
         self,
         configuration,
@@ -103,7 +61,11 @@ class TestPCodes:
                             {
                                 "name": "administrative boundaries-divisions",
                                 "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
-                            }
+                            },
+                            {
+                                "name": "hxl",
+                                "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
+                            },
                         ],
                         "dataset_date": "[2014-10-01T00:00:00 TO *]",
                         "license_id": "cc-by",
@@ -132,6 +94,7 @@ class TestPCodes:
                             "description": "Table contains the 3-digit ISO code, admin "
                             "level, p-code, administrative name, parent p-code, and "
                             "date.",
+                            "p_coded": True,
                             "format": "csv",
                             "resource_type": "file.upload",
                             "url_type": "upload",
@@ -141,6 +104,7 @@ class TestPCodes:
                             "description": "Data for admin levels 1 and 2. Table "
                             "contains the 3-digit ISO code, admin level, p-code, "
                             "administrative name, parent p-code, and date.",
+                            "p_coded": True,
                             "format": "csv",
                             "resource_type": "file.upload",
                             "url_type": "upload",
