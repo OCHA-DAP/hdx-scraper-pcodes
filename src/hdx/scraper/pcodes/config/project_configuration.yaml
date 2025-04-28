@@ -4,10 +4,12 @@ dataset_title: "Global P-Code List"
 resource_info_all:
   name: "global_pcodes.csv"
   description: "Table contains the 3-digit ISO code, admin level, p-code, administrative name, parent p-code, and date."
+  p_coded: True
 
 resource_info_1_2:
   name: "global_pcodes_adm_1_2.csv"
   description: "Data for admin levels 1 and 2. Table contains the 3-digit ISO code, admin level, p-code, administrative name, parent p-code, and date."
+  p_coded: True
 
 resource_info_lengths:
   name: "global_pcode_lengths.csv"

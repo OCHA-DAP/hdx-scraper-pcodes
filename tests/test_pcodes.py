@@ -94,6 +94,7 @@ class TestPCodes:
                             "description": "Table contains the 3-digit ISO code, admin "
                             "level, p-code, administrative name, parent p-code, and "
                             "date.",
+                            "p_coded": True,
                             "format": "csv",
                             "resource_type": "file.upload",
                             "url_type": "upload",
@@ -103,6 +104,7 @@ class TestPCodes:
                             "description": "Data for admin levels 1 and 2. Table "
                             "contains the 3-digit ISO code, admin level, p-code, "
                             "administrative name, parent p-code, and date.",
+                            "p_coded": True,
                             "format": "csv",
                             "resource_type": "file.upload",
                             "url_type": "upload",
