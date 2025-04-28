@@ -68,7 +68,9 @@ class Pcodes:
             ]
         else:
             resources = [
-                r for r in dataset.get_resources() if r.get_file_type() in ["xlsx", "xls"]
+                r
+                for r in dataset.get_resources()
+                if r.get_file_type() in ["xlsx", "xls"]
             ]
 
         if len(resources) == 0:
@@ -180,11 +182,15 @@ class Pcodes:
 
             if len(codeheaders) == 0:
                 codeheaders = [
-                    h for h in df.columns if bool(re.match(".*pcode?", h, re.IGNORECASE))
+                    h
+                    for h in df.columns
+                    if bool(re.match(".*pcode?", h, re.IGNORECASE))
                 ]
                 if len(codeheaders) != 1:
                     self._error_handler.add_message(
-                        "PCodes", dataset["name"], f"Can't find code header at adm{level}"
+                        "PCodes",
+                        dataset["name"],
+                        f"Can't find code header at adm{level}",
                     )
                     continue
 
