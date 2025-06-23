@@ -68,9 +68,7 @@ class Pcodes:
             ]
         else:
             resources = [
-                r
-                for r in dataset.get_resources()
-                if r.get_file_type() in ["xlsx", "xls"]
+                r for r in dataset.get_resources() if r.get_format() in ["xlsx", "xls"]
             ]
 
         if len(resources) == 0:
@@ -345,7 +343,7 @@ class Pcodes:
                     "parent pcode",
                     pcode,
                 )
-        return
+        return None
 
     def get_pcode_lengths(self, iso) -> None:
         if iso not in self.pcodes:
@@ -390,7 +388,7 @@ class Pcodes:
             pcode_lengths[f"Admin {admin_level} Length"] = field_lengths
 
         self.pcode_lengths.append(pcode_lengths)
-        return
+        return None
 
     def generate_dataset(self) -> Dataset:
         global_pcodes = []
