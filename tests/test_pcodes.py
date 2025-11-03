@@ -96,8 +96,6 @@ class TestPCodes:
                             "date.",
                             "p_coded": True,
                             "format": "csv",
-                            "resource_type": "file.upload",
-                            "url_type": "upload",
                         },
                         {
                             "name": "global_pcodes_adm_1_2.csv",
@@ -106,8 +104,6 @@ class TestPCodes:
                             "administrative name, parent p-code, and date.",
                             "p_coded": True,
                             "format": "csv",
-                            "resource_type": "file.upload",
-                            "url_type": "upload",
                         },
                         {
                             "name": "global_pcode_lengths.csv",
@@ -115,8 +111,6 @@ class TestPCodes:
                             "levels. Table contains the 2 or 3 digit ISO code present in "
                             "the p-codes, and p-code lengths.",
                             "format": "csv",
-                            "resource_type": "file.upload",
-                            "url_type": "upload",
                         },
                     ]
 
