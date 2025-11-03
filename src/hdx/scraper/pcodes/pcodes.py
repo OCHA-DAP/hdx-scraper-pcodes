@@ -162,7 +162,7 @@ class Pcodes:
                 and not bool(re.search("alt", h, re.IGNORECASE))
             ]
             if iso == "CMR":
-                nameheaders = [f"ADM{level}_FR"]
+                nameheaders = [f"adm{level}_name1"]
             if iso == "EGY" and level == "3":
                 nameheaders = ["ADM3_AR"]
             parentlevel = int(level) - 1
