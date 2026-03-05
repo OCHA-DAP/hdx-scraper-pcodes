@@ -419,33 +419,30 @@ class Pcodes:
         min_date = min([entry["Valid from date"] for entry in global_pcodes])
         dataset.set_time_period(startdate=min_date, ongoing=True)
 
-        hxl_tags = self._configuration["hxl_tags"]
-        dataset.generate_resource_from_iterable(
-            headers=list(hxl_tags.keys()),
-            iterable=global_pcodes,
-            hxltags=hxl_tags,
+        headers = self._configuration["headers"]
+        dataset.generate_resource(
             folder=self._temp_folder,
             filename=self._configuration["resource_info_all"]["name"],
+            rows=global_pcodes,
             resourcedata=self._configuration["resource_info_all"],
+            headers=headers,
             encoding="utf-8-sig",
         )
-        dataset.generate_resource_from_iterable(
-            headers=list(hxl_tags.keys()),
-            iterable=adm12_pcodes,
-            hxltags=hxl_tags,
+        dataset.generate_resource(
             folder=self._temp_folder,
             filename=self._configuration["resource_info_1_2"]["name"],
+            rows=adm12_pcodes,
             resourcedata=self._configuration["resource_info_1_2"],
+            headers=headers,
             encoding="utf-8-sig",
         )
-        hxl_tags = self._configuration["hxl_tags_lengths"]
-        dataset.generate_resource_from_iterable(
-            headers=list(hxl_tags.keys()),
-            iterable=self.pcode_lengths,
-            hxltags=hxl_tags,
+        headers = self._configuration["headers_lengths"]
+        dataset.generate_resource(
             folder=self._temp_folder,
             filename=self._configuration["resource_info_lengths"]["name"],
+            rows=self.pcode_lengths,
             resourcedata=self._configuration["resource_info_lengths"],
+            headers=headers,
             encoding="utf-8-sig",
         )
 

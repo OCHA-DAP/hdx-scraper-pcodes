@@ -62,10 +62,6 @@ class TestPCodes:
                                 "name": "administrative boundaries-divisions",
                                 "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
                             },
-                            {
-                                "name": "hxl",
-                                "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
-                            },
                         ],
                         "dataset_date": "[2014-10-01T00:00:00 TO *]",
                         "license_id": "cc-by",

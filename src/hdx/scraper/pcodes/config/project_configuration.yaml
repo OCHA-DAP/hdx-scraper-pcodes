@@ -15,22 +15,22 @@ resource_info_lengths:
   name: "global_pcode_lengths.csv"
   description: "P-code lengths for all countries at all levels. Table contains the 2 or 3 digit ISO code present in the p-codes, and p-code lengths."
 
-hxl_tags:
-  Location: "#country+code"
-  Admin Level: "#geo+admin_level"
-  P-Code: "#adm+code"
-  Name: "#adm+name"
-  Parent P-Code: "#adm+code+parent"
-  Valid from date: "#date+start"
+headers:
+  - Location
+  - Admin Level
+  - P-Code
+  - Name
+  - Parent P-Code
+  - Valid from date
 
-hxl_tags_lengths:
-  Location: "#country+code"
-  Country Length: "#country+len"
-  Admin 1 Length: "#adm1+len"
-  Admin 2 Length: "#adm2+len"
-  Admin 3 Length: "#adm3+len"
-  Admin 4 Length: "#adm4+len"
-  Admin 5 Length: "#adm5+len"
+headers_lengths:
+  - Location
+  - Country Length
+  - Admin 1 Length
+  - Admin 2 Length
+  - Admin 3 Length
+  - Admin 4 Length
+  - Admin 5 Length
 
 tags:
   - "administrative boundaries-divisions"
