@@ -117,9 +117,7 @@ class Pcodes:
         return data_subset
 
     def get_pcodes_from_gazetteer(self, data, iso, dataset):
-        dataset_date = dataset.get_time_period(date_format="%Y-%m-%d")[
-            "startdate_str"
-        ]
+        dataset_date = dataset.get_time_period(date_format="%Y-%m-%d")["startdate_str"]
 
         for sheetname in data:
             adm_pcodes = list()

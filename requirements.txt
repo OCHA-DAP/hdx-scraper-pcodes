@@ -12,11 +12,11 @@ attrs==25.4.0
     #   referencing
 certifi==2026.2.25
     # via requests
-chardet==7.0.1
+chardet==7.1.0
     # via frictionless
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via requests
-ckanapi==4.9
+ckanapi==4.10
     # via hdx-python-api
 click==8.3.1
     # via typer
@@ -77,7 +77,7 @@ markupsafe==3.0.3
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-numpy==2.4.2
+numpy==2.4.3
     # via pandas
 openpyxl==3.1.5
     # via hdx-python-utilities
@@ -132,17 +132,16 @@ rpds-py==0.30.0
     #   referencing
 ruamel-yaml==0.19.1
     # via hdx-python-utilities
-setuptools==82.0.0
+setuptools==82.0.1
     # via ckanapi
 shellingham==1.5.4
     # via typer
-simpleeval==1.0.3
+simpleeval==1.0.7
     # via frictionless
 simplejson==3.20.2
     # via ckanapi
 six==1.17.0
     # via
-    #   ckanapi
     #   pockets
     #   python-dateutil
     #   sphinxcontrib-napoleon

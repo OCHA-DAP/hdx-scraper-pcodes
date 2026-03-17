@@ -19,15 +19,15 @@ certifi==2026.2.25
     # via
     #   -c requirements.txt
     #   requests
-chardet==7.0.1
+chardet==7.1.0
     # via
     #   -c requirements.txt
     #   frictionless
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via
     #   -c requirements.txt
     #   requests
-ckanapi==4.9
+ckanapi==4.10
     # via
     #   -c requirements.txt
     #   hdx-python-api
@@ -140,7 +140,7 @@ mdurl==0.1.2
     # via
     #   -c requirements.txt
     #   markdown-it-py
-numpy==2.4.2
+numpy==2.4.3
     # via
     #   -c requirements.txt
     #   pandas
@@ -242,7 +242,7 @@ ruamel-yaml==0.19.1
     # via
     #   -c requirements.txt
     #   hdx-python-utilities
-setuptools==82.0.0
+setuptools==82.0.1
     # via
     #   -c requirements.txt
     #   ckanapi
@@ -250,7 +250,7 @@ shellingham==1.5.4
     # via
     #   -c requirements.txt
     #   typer
-simpleeval==1.0.3
+simpleeval==1.0.7
     # via
     #   -c requirements.txt
     #   frictionless
@@ -261,7 +261,6 @@ simplejson==3.20.2
 six==1.17.0
     # via
     #   -c requirements.txt
-    #   ckanapi
     #   pockets
     #   python-dateutil
     #   sphinxcontrib-napoleon
